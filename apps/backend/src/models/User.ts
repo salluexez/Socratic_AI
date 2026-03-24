@@ -1,12 +1,20 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { User } from '@socratic-ai/types';
 
-const userSchema = new Schema<User & { password: string }>(
+export interface IUserDocument extends Omit<User, '_id'>, Document {
+  password: string;
+  deviceTokens: string[];
+  notificationsEnabled: boolean;
+}
+
+const userSchema = new Schema<IUserDocument>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    deviceTokens: { type: [String], default: [] },
+    notificationsEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
@@ -18,4 +26,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-export const UserModel = mongoose.model('User', userSchema);
+export const UserModel = mongoose.model<IUserDocument>('User', userSchema);

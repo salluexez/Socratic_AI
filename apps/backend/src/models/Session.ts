@@ -1,5 +1,9 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { Session, Message } from '@socratic-ai/types';
+
+export interface ISessionDocument extends Omit<Session, '_id' | 'userId'>, Document {
+  userId: mongoose.Types.ObjectId;
+}
 
 const messageSchema = new Schema<Message>({
   role: { type: String, enum: ['user', 'assistant'], required: true },
@@ -7,7 +11,7 @@ const messageSchema = new Schema<Message>({
   timestamp: { type: Date, default: Date.now },
 });
 
-const sessionSchema = new Schema<Session>(
+const sessionSchema = new Schema<ISessionDocument>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     subject: {
@@ -26,4 +30,4 @@ const sessionSchema = new Schema<Session>(
   { timestamps: true }
 );
 
-export const SessionModel = mongoose.model('Session', sessionSchema);
+export const SessionModel = mongoose.model<ISessionDocument>('Session', sessionSchema);

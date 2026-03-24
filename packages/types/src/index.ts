@@ -1,9 +1,11 @@
 export interface User {
-  id: string;
+  _id?: string;
   name: string;
   email: string;
-  createdAt: Date;
-  updatedAt: Date;
+  deviceTokens?: string[];
+  notificationsEnabled?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface Message {
@@ -13,7 +15,7 @@ export interface Message {
 }
 
 export interface Session {
-  id: string;
+  _id?: string;
   userId: string;
   subject: 'physics' | 'chemistry' | 'math' | 'biology';
   topic?: string;
@@ -23,8 +25,8 @@ export interface Session {
   duration?: number;
   attemptCount: number;
   messages: Message[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ApiResponse<T> {

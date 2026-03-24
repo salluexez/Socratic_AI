@@ -18,7 +18,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     // Call Gemini for Socratic response
     // In a real scenario, we'd also pass attempt counting logic here
-    const aiResponseContent = await getSocraticResponse(session.subject, session.messages);
+    const aiResponseContent = await getSocraticResponse(session.subject, session.messages, session.attemptCount);
     
     const aiMessage = { role: 'assistant' as const, content: aiResponseContent, timestamp: new Date() };
     session.messages.push(aiMessage);

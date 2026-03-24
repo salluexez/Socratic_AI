@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:backend": "turbo run dev --filter=@socratic-ai/backend",
+    "dev:web": "turbo run dev --filter=@socratic-ai/web",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check"

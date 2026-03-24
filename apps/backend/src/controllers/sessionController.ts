@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { SessionModel } from '../models/Session';
+import { getTopicSummary } from '../services/gemini';
 
 export const createSession = async (req: Request, res: Response) => {
   const { subject } = req.body;
@@ -56,11 +57,21 @@ export const endSession = async (req: Request, res: Response) => {
   const userId = (req as any).user._id;
 
   try {
-    const session = await SessionModel.findOneAndUpdate(
-      { _id: id, userId },
-      { isActive: false, endedAt: new Date() },
-      { new: true }
-    );
+    const session = await SessionModel.findOne({ _id: id, userId });
+    if (!session) {
+      return res.status(404).json({ success: false, error: 'Session not found' });
+    }
+
+    const endedAt = new Date();
+    const duration = Math.round((endedAt.getTime() - session.startedAt.getTime()) / 1000);
+    const topic = await getTopicSummary(session.messages);
+
+    session.isActive = false;
+    session.endedAt = endedAt;
+    session.duration = duration;
+    session.topic = topic;
+
+    await session.save();
     res.json({ success: true, data: session });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to end session' });
