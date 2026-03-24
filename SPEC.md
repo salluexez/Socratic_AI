@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-A chat-based web application that uses the Socratic method to guide students toward answers through structured questioning, hints, and clarifying prompts — instead of providing direct solutions.
+A chat-based web and mobile application that uses the Socratic method to guide students toward answers through structured questioning, hints, and clarifying prompts — instead of providing direct solutions. The app is available as a Next.js web app and an Expo (React-Native) mobile app, both sharing the same backend API and MongoDB database. Sessions started on the web can be continued on mobile and vice versa.
 
 **Core Principle:** The AI never gives the final answer outright. It asks guiding questions, provides progressive hints, and only reveals the solution after 4-5 failed attempts or when the student explicitly requests it.
 
@@ -13,14 +13,16 @@ A chat-based web application that uses the Socratic method to guide students tow
 | Layer | Technology |
 |---|---|
 | Monorepo | Turborepo |
-| Frontend (`apps/web`) | Next.js 14+ (App Router), Tailwind CSS, shadcn/ui |
+| Frontend — Web (`apps/web`) | Next.js 14+ (App Router), Tailwind CSS, shadcn/ui |
+| Frontend — Mobile (`apps/mobile`) | Expo (React-Native), Expo Router, React Native Paper |
 | Backend (`apps/api`) | Node.js, Express.js, Mongoose |
-| Shared (`packages/*`) | TypeScript types, shared configs |
+| Shared (`packages/*`) | TypeScript types, shared configs, shared UI primitives |
 | Database | MongoDB (via Mongoose) |
-| Auth | Custom JWT (bcrypt + jsonwebtoken) |
+| Auth | Custom JWT (bcrypt + jsonwebtoken) — Bearer token strategy |
 | AI | Google Gemini API (`@google/generative-ai`) |
-| State | Zustand |
-| Deployment | Vercel (frontend) + Railway/Render (backend) + MongoDB Atlas |
+| State | Zustand (web), Zustand + AsyncStorage (mobile) |
+| Push Notifications | Expo Notifications (`expo-notifications`) |
+| Deployment | Vercel (web) + EAS Build (mobile) + Railway/Render (backend) + MongoDB Atlas |
 
 ---
 
@@ -33,7 +35,9 @@ A chat-based web application that uses the Socratic method to guide students tow
 
 ---
 
-## 4. Pages & Routes (Frontend)
+## 4. Pages & Routes
+
+### Web (Next.js — `apps/web`)
 
 | Route | Page | Auth Required |
 |---|---|---|
@@ -45,6 +49,29 @@ A chat-based web application that uses the Socratic method to guide students tow
 | `/sessions` | **Session History** — List of past sessions with subject, date, duration, topic summary | Yes |
 | `/sessions/[id]` | **Session Detail** — Full transcript of a past session | Yes |
 | `/profile` | **Profile** — User info, total sessions, total time, subject breakdown | Yes |
+
+### Mobile (Expo — `apps/mobile`)
+
+Uses Expo Router file-based navigation with a bottom tab layout.
+
+| Screen | Route (Expo Router) | Tab | Auth Required |
+|---|---|---|---|
+| **Welcome** | `app/index.tsx` | — | No |
+| **Sign In** | `app/(auth)/signin.tsx` | — | No |
+| **Sign Up** | `app/(auth)/signup.tsx` | — | No |
+| **Dashboard** | `app/(tabs)/dashboard.tsx` | Learn | Yes |
+| **Chat** | `app/(tabs)/chat/[subject].tsx` | Learn | Yes |
+| **Sessions** | `app/(tabs)/sessions.tsx` | History | Yes |
+| **Session Detail** | `app/(tabs)/sessions/[id].tsx` | History | Yes |
+| **Profile** | `app/(tabs)/profile.tsx` | Profile | Yes |
+
+**Mobile Navigation Structure:**
+
+- **Auth Stack:** Welcome → Sign In / Sign Up
+- **Main Tab Navigator (3 tabs):**
+  - **Learn:** Dashboard → Chat (stack within tab)
+  - **History:** Sessions → Session Detail (stack within tab)
+  - **Profile:** Profile
 
 ---
 
@@ -60,12 +87,18 @@ A chat-based web application that uses the Socratic method to guide students tow
 
 ### 5.2 Authentication
 
-- **Sign Up:** Name, email, password (min 8 chars), confirm password. Validates email uniqueness. Hashes password with bcrypt (salt rounds: 10). Returns JWT on success.
-- **Sign In:** Email + password. Validates credentials. Returns JWT (expires in 7 days).
-- **JWT Storage:** HttpOnly cookie (`token`) — not localStorage (XSS-safe). Backend sets cookie on response.
-- **Frontend middleware:** `middleware.ts` checks JWT cookie on protected routes. Redirects to `/signin` if invalid/missing.
-- **Backend middleware:** `authMiddleware` verifies JWT from cookie/Authorization header. Attaches `req.user`.
-- **Logout:** Backend clears cookie, frontend redirects to `/`.
+**Strategy:** Bearer token (JWT) for both web and mobile. No cookies.
+
+- **Sign Up:** Name, email, password (min 8 chars), confirm password. Validates email uniqueness. Hashes password with bcrypt (salt rounds: 10). Returns JWT in response body (`{ token, user }`).
+- **Sign In:** Email + password. Validates credentials. Returns JWT in response body (expires in 7 days).
+- **Token Storage:**
+  - **Web:** Stored in Zustand state (persisted to `sessionStorage`). Sent via `Authorization: Bearer <token>` header on every API call.
+  - **Mobile:** Stored in `AsyncStorage`. Sent via `Authorization: Bearer <token>` header on every API call.
+- **Frontend middleware (web):** `middleware.ts` checks Zustand token on protected routes. Redirects to `/signin` if missing/expired.
+- **Frontend auth guard (mobile):** `AuthContext` checks AsyncStorage token. Redirects to Welcome/SignIn screen if missing/expired.
+- **Backend middleware:** `authMiddleware` verifies JWT from `Authorization: Bearer <token>` header. Attaches `req.user`.
+- **Logout:** Frontend clears token from state/AsyncStorage. Backend has optional `POST /api/auth/logout` to blacklist token (if implemented).
+- **Cross-platform:** A user can sign in on web, then sign in on mobile (or vice versa). Both receive independent JWTs. Sessions are shared via MongoDB.
 
 ### 5.3 Subject Selection (`/dashboard`)
 
@@ -118,7 +151,8 @@ The AI follows strict Socratic rules:
 
 ### 5.5 Session Tracking (Automatic)
 
-- Each chat session is automatically saved
+- Each chat session is automatically saved to MongoDB
+- **Cross-platform sync:** Sessions created on web appear on mobile (and vice versa) — same user, same MongoDB database
 - **Tracked data:**
   - Session start time / end time
   - Subject
@@ -126,9 +160,10 @@ The AI follows strict Socratic rules:
   - Full message transcript
   - Total duration
   - Attempt count (how many guiding rounds occurred)
+  - Platform origin (web/mobile) — for analytics
 - Session auto-saves on every message exchange
 - Session ends when user clicks "New Session" or navigates away
-- One active session per subject — opening same subject resumes active session
+- One active session per subject — opening same subject resumes active session on any platform
 
 ### 5.6 Session History (`/sessions`)
 
@@ -150,6 +185,19 @@ The AI follows strict Socratic rules:
 - Stats: total sessions, total time spent, sessions per subject
 - Edit name option
 - Change password option
+- Manage push notification preferences (enable/disable)
+
+### 5.9 Push Notifications (Mobile)
+
+- **Library:** `expo-notifications`
+- **On app launch:** Request notification permission, register device push token, send token to backend via `POST /api/notifications/register`
+- **Notification types:**
+  - **Session reminder:** "You have an active session in Math. Continue learning?" — sent after 24h of inactivity
+  - **Streak reminder:** "Don't break your learning streak! Pick a subject today." — sent daily if no session completed that day
+  - **New feature / announcement:** Sent by admin
+- **Backend:** Stores device token per user. Sends via Expo Push Notification API (`https://exp.host/--/api/v2/push/send`)
+- **Preferences:** Users can enable/disable notifications from Profile screen. Backend respects `notificationsEnabled` flag on User model.
+- **Token management:** Backend removes invalid/expired tokens on delivery failure. Users on multiple devices can have multiple tokens.
 
 ---
 
@@ -163,6 +211,8 @@ The AI follows strict Socratic rules:
   name: String,
   email: String (unique, indexed),
   password: String (hashed),
+  deviceTokens: [String],   // Expo push tokens for mobile devices
+  notificationsEnabled: { type: Boolean, default: true },
   createdAt: Date,
   updatedAt: Date
 }
@@ -177,6 +227,7 @@ The AI follows strict Socratic rules:
   subject: String (enum: ["physics", "chemistry", "math", "biology"]),
   topic: String,           // auto-extracted summary
   isActive: Boolean,       // true while session is ongoing
+  platform: String (enum: ["web", "mobile"]),  // where session was started
   startedAt: Date,
   endedAt: Date,           // null if active
   duration: Number,        // seconds, calculated on end
@@ -197,22 +248,22 @@ The AI follows strict Socratic rules:
 
 Base URL: `http://localhost:5000` (dev) / production URL
 
-All protected routes require JWT cookie or `Authorization: Bearer <token>` header.
+All protected routes require `Authorization: Bearer <token>` header.
 
 ### Auth
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/auth/signup` | Register new user. Sets JWT cookie. |
-| POST | `/api/auth/signin` | Login. Sets JWT cookie. |
-| POST | `/api/auth/logout` | Clears JWT cookie. |
+| POST | `/api/auth/signup` | Register new user. Returns `{ token, user }`. |
+| POST | `/api/auth/signin` | Login. Returns `{ token, user }`. |
+| POST | `/api/auth/logout` | Logout (optional token blacklist). |
 | GET | `/api/auth/me` | Get current user from JWT (protected). |
 
 ### Sessions
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/api/sessions` | Create new session (protected). |
+| POST | `/api/sessions` | Create new session (protected). Accepts optional `platform` field (`web`/`mobile`). |
 | GET | `/api/sessions` | List user's sessions (protected). Supports `?subject=physics&page=1&limit=10`. |
 | GET | `/api/sessions/:id` | Get session detail + messages (protected). |
 | POST | `/api/sessions/:id/messages` | Add user message, get AI response, save both (protected). |
@@ -224,10 +275,19 @@ All protected routes require JWT cookie or `Authorization: Bearer <token>` heade
 |---|---|---|
 | POST | `/api/chat` | Send message + conversation history → Gemini Socratic response (protected). |
 
+### Notifications
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/notifications/register` | Register device push token. Body: `{ token: "<expo-push-token>" }` (protected). |
+| DELETE | `/api/notifications/unregister` | Remove device push token. Body: `{ token: "<expo-push-token>" }` (protected). |
+| PATCH | `/api/notifications/preferences` | Toggle notifications on/off. Body: `{ enabled: boolean }` (protected). |
+
 ### CORS
 
-- Backend allows requests from frontend origin (`http://localhost:3000` dev / production domain)
-- Credentials: `true` (for cookies)
+- Backend allows requests from frontend web origin (`http://localhost:3000` dev / production domain)
+- Native mobile apps send no `Origin` header — backend must not reject requests without one
+- Credentials not needed (Bearer token in header, no cookies)
 
 ---
 
@@ -292,53 +352,98 @@ Keep responses to 2-4 sentences. Ask one question at a time.
 | 12 | **Student asks "what should I ask?"** | AI suggests types of questions to explore, not the answer itself. |
 | 13 | **Rate limiting** | 30 messages/min per user. Returns 429 with "You're sending too fast. Please wait." |
 | 14 | **Multiple active sessions** | One active session per subject. Opening same subject resumes active session. "New Session" starts fresh. |
+| 15 | **Mobile offline / poor network** | Show "No connection" banner. Messages queued locally, sent when reconnected. Chat input disabled until connection restored. |
+| 16 | **Cross-platform session conflict** | User opens same active session on web and mobile simultaneously. Last write wins (messages from both platforms are saved in order). No locking needed — additive messages only. |
+| 17 | **Push notification delivery failure** | Backend removes invalid Expo tokens on 410 Gone response. If all tokens fail, notification silently skipped. |
+| 18 | **Mobile background → foreground** | App returns from background. Refresh session list, check for new messages, reconnect WebSocket if used. |
 
 ---
 
 ## 10. User Flows
 
-### Flow 1: New User Journey
+### Flow 1: New User Journey (Web)
 
 ```
 Homepage → Sign Up → Dashboard → Pick Subject → Chat → Session saved automatically
 ```
 
-### Flow 2: Returning User
+### Flow 2: New User Journey (Mobile)
 
 ```
-Homepage → Sign In → Dashboard → Pick Subject → Chat (or View Sessions)
+Welcome → Sign Up → Dashboard (tab) → Pick Subject → Chat → Session saved automatically
 ```
 
-### Flow 3: Review Past Session
+### Flow 3: Returning User
+
+```
+Homepage/Welcome → Sign In → Dashboard → Pick Subject → Chat (or View Sessions)
+```
+
+### Flow 4: Review Past Session
 
 ```
 Dashboard → Sessions → Click session → View transcript → Continue session (optional)
 ```
 
-### Flow 4: Failed Attempts → Auto-Reveal
+### Flow 5: Failed Attempts → Auto-Reveal
 
 ```
 Chat → Ask question → Wrong answer (1) → Hint → Wrong (2) → Hint → Wrong (3)
 → Detailed scaffolding → Wrong (4) → Final hint → Wrong (5) → Full answer revealed
 ```
 
-### Flow 5: Give Up
+### Flow 6: Give Up
 
 ```
 Chat → Ask question → Struggling → Click "Show Answer" → Confirm modal → Full answer + reasoning
+```
+
+### Flow 7: Cross-Platform Continuation
+
+```
+User starts session on web → leaves → receives push notification on mobile →
+opens mobile app → session auto-resumes → continues chat on mobile →
+later opens web → session reflects mobile messages
+```
+
+### Flow 8: Push Notification → Session Resume
+
+```
+Mobile: 24h inactive → push notification "Continue your Math session?" →
+tap notification → opens app → navigates to active Math session
 ```
 
 ---
 
 ## 11. UI/UX Guidelines
 
+### General (Both Platforms)
+
 - **Color scheme:** Clean, academic feel. Soft blues/greens. Dark mode support.
-- **Font:** Inter or Geist Sans for body, monospace for code/math
+- **Font:** Inter (web) / System default (mobile) for body, monospace for code/math
 - **Chat bubbles:** Distinct colors for user (blue) and AI (gray/white)
 - **Attempt counter:** Small badge after first wrong answer, updates in real-time
-- **Responsive:** Mobile-first. Chat input fixed at bottom on mobile.
-- **Loading states:** Skeleton loaders, typing animation for AI
-- **Accessibility:** Semantic HTML, keyboard navigation, ARIA labels
+- **Loading states:** Skeleton loaders (web), activity indicator (mobile), typing animation for AI
+- **Accessibility:** Semantic HTML (web), proper accessibility labels (mobile), keyboard navigation (web), VoiceOver/TalkBack support (mobile)
+
+### Web-Specific
+
+- Responsive: Mobile-first. Chat input fixed at bottom on mobile viewport.
+- Tailwind CSS for all styling
+- shadcn/ui component library
+
+### Mobile-Specific (Expo)
+
+- **Component library:** React Native Paper for Material Design components
+- **Navigation:** Bottom tab bar (3 tabs: Learn, History, Profile)
+- **Safe areas:** Use `react-native-safe-area-context` for notch/status bar handling
+- **Keyboard:** Use `KeyboardAvoidingView` for chat input. Auto-scroll to latest message on keyboard open.
+- **Gestures:** Swipe-to-go-back on iOS, pull-to-refresh on session lists
+- **Platform conventions:** iOS-style navigation on iOS, Material Design on Android
+- **Offline indicator:** Banner at top when network unavailable
+- **Haptics:** Light haptic on message send, success haptic on correct answer
+- **Status bar:** Match theme (light/dark)
+- **Splash screen:** Branded splash via `expo-splash-screen`
 
 ---
 
@@ -347,7 +452,7 @@ Chat → Ask question → Struggling → Click "Show Answer" → Confirm modal �
 ```
 /
 ├── apps/
-│   ├── web/                          # Next.js Frontend
+│   ├── web/                          # Next.js Frontend (Web)
 │   │   ├── src/
 │   │   │   ├── app/
 │   │   │   │   ├── layout.tsx
@@ -381,6 +486,44 @@ Chat → Ask question → Struggling → Click "Show Answer" → Confirm modal �
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
+│   ├── mobile/                       # Expo / React-Native Frontend (Mobile)
+│   │   ├── app/                      # Expo Router file-based routing
+│   │   │   ├── _layout.tsx           # Root layout (Auth + Main)
+│   │   │   ├── index.tsx             # Welcome / Landing screen
+│   │   │   ├── (auth)/
+│   │   │   │   ├── _layout.tsx       # Auth stack layout
+│   │   │   │   ├── signin.tsx
+│   │   │   │   └── signup.tsx
+│   │   │   └── (tabs)/
+│   │   │       ├── _layout.tsx       # Bottom tab layout
+│   │   │       ├── dashboard.tsx     # Subject grid
+│   │   │       ├── chat/
+│   │   │       │   └── [subject].tsx # Socratic chat
+│   │   │       ├── sessions/
+│   │   │       │   ├── index.tsx     # Session list
+│   │   │       │   └── [id].tsx      # Session detail
+│   │   │       └── profile.tsx
+│   │   ├── components/
+│   │   │   ├── ChatBubble.tsx
+│   │   │   ├── SubjectCard.tsx
+│   │   │   ├── SessionCard.tsx
+│   │   │   ├── AttemptCounter.tsx
+│   │   │   ├── MessageInput.tsx
+│   │   │   └── OfflineBanner.tsx
+│   │   ├── context/
+│   │   │   └── AuthContext.tsx
+│   │   ├── hooks/
+│   │   │   └── useApi.ts
+│   │   ├── lib/
+│   │   │   ├── api.ts                # Axios/fetch client pointing to backend
+│   │   │   └── notifications.ts      # Push notification registration/handling
+│   │   ├── store/
+│   │   │   └── authStore.ts          # Zustand + AsyncStorage for token
+│   │   ├── app.json                  # Expo config
+│   │   ├── babel.config.js
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
 │   └── api/                          # Express Backend
 │       ├── src/
 │       │   ├── index.ts              # Express app entry point
@@ -396,13 +539,16 @@ Chat → Ask question → Struggling → Click "Show Answer" → Confirm modal �
 │       │   ├── routes/
 │       │   │   ├── auth.ts
 │       │   │   ├── sessions.ts
-│       │   │   └── chat.ts
+│       │   │   ├── chat.ts
+│       │   │   └── notifications.ts
 │       │   ├── controllers/
 │       │   │   ├── authController.ts
 │       │   │   ├── sessionController.ts
-│       │   │   └── chatController.ts
+│       │   │   ├── chatController.ts
+│       │   │   └── notificationController.ts
 │       │   ├── services/
-│       │   │   └── gemini.ts         # Gemini API client + Socratic prompt logic
+│       │   │   ├── gemini.ts         # Gemini API client + Socratic prompt logic
+│       │   │   └── notifications.ts  # Expo Push Notification sender
 │       │   └── utils/
 │       │       ├── jwt.ts
 │       │       └── prompts.ts        # System prompts per subject
@@ -428,6 +574,7 @@ Chat → Ask question → Struggling → Click "Show Answer" → Confirm modal �
 │       ├── base.json
 │       ├── nextjs.json
 │       ├── node.json
+│       ├── expo.json
 │       └── package.json
 │
 ├── turbo.json                        # Turborepo pipeline config
@@ -455,6 +602,7 @@ GEMINI_API_KEY=your-gemini-api-key
 
 # URLs
 NEXT_PUBLIC_API_URL=http://localhost:5000
+EXPO_PUBLIC_API_URL=http://localhost:5000
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -462,6 +610,12 @@ FRONTEND_URL=http://localhost:3000
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+### `apps/mobile/.env`
+
+```env
+EXPO_PUBLIC_API_URL=http://localhost:5000
 ```
 
 ### `apps/api/.env`
@@ -472,6 +626,7 @@ MONGODB_URI=mongodb+srv://...
 JWT_SECRET=your-secret-key-here
 GEMINI_API_KEY=your-gemini-api-key
 FRONTEND_URL=http://localhost:3000
+EXPO_ACCESS_TOKEN=your-expo-access-token   # For push notifications
 ```
 
 ---
@@ -486,7 +641,7 @@ FRONTEND_URL=http://localhost:3000
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
     },
     "dev": {
       "cache": false,
@@ -507,6 +662,9 @@ FRONTEND_URL=http://localhost:3000
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:mobile": "turbo run dev --filter=mobile",
+    "dev:api": "turbo run dev --filter=api",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check"
@@ -523,7 +681,11 @@ FRONTEND_URL=http://localhost:3000
 
 - Gamification: badges, streaks, XP for completing Socratic sessions
 - Multiplayer: teacher can view student sessions
-- Voice input/output for accessibility
+- Voice input/output for accessibility (mobile: speech-to-text, text-to-speech)
 - Export session as PDF/Markdown study notes
 - Spaced repetition: suggest revisiting topics from past sessions
 - Admin dashboard for usage analytics
+- Offline mode for mobile: queue messages, sync when back online
+- Widget for mobile: quick subject access from home screen
+- Biometric auth (Face ID / Fingerprint) for mobile
+- Deep linking: shared session links that open in app or web
