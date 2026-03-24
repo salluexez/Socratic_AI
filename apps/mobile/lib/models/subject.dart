@@ -8,6 +8,7 @@ class Subject {
     required this.icon,
     required this.accent,
     this.resumeLabel,
+    this.isPermanent = false,
   });
 
   final String slug;
@@ -16,4 +17,5 @@ class Subject {
   final IconData icon;
   final Color accent;
   final String? resumeLabel;
+  final bool isPermanent;
 }

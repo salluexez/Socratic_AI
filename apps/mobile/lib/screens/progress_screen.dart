@@ -5,6 +5,7 @@ import '../models/api_session.dart';
 import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/stat_card.dart';
+import 'all_sessions_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -21,7 +22,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
   @override
   void initState() {
     super.initState();
+    BackendApiService.instance.refreshNotifier.addListener(_loadSessions);
     _loadSessions();
+  }
+
+  @override
+  void dispose() {
+    BackendApiService.instance.refreshNotifier.removeListener(_loadSessions);
+    super.dispose();
   }
 
   @override
@@ -143,6 +151,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                               subtitle: 'Completed learning',
                               color: const Color(0xFF00BFA5),
                               icon: Icons.auto_graph_rounded,
+                              onTap: () {
+                                Navigator.pushNamed(context, AllSessionsScreen.routeName);
+                              },
                             ),
                             StatCard(
                               title: 'Subjects',
@@ -393,8 +404,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
-                                          session.topic ??
-                                              'Exploration of ${session.subject}',
+                                          session.displayTitle,
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium

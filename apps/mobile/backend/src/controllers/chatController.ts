@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ChatModel } from '../models/Chat';
-import { getSocraticResponse } from '../services/socratic';
+import { getSocraticResponse, generateTopic } from '../services/socratic';
 
 export const sendMessage = async (req: Request, res: Response) => {
   const { sessionId, content } = req.body;
@@ -21,9 +21,12 @@ export const sendMessage = async (req: Request, res: Response) => {
       timestamp: new Date() 
     };
     chat.messages.push(userMessage);
+    
+    // Increment stats
+    chat.attemptCount = (chat.attemptCount || 0) + 1;
+    chat.duration = (chat.duration || 0) + 300; // +5 minutes per interaction
 
     // Call Socratic AI service
-    // history excludes the current message as it's passed separately
     const history = chat.messages.slice(0, -1).map(m => ({
       role: m.role,
       content: m.content
@@ -38,11 +41,21 @@ export const sendMessage = async (req: Request, res: Response) => {
     };
     chat.messages.push(aiMessage);
     
+    // Auto-name the session if it's the first message
+    if (chat.messages.length <= 2 && (!chat.topic || chat.topic.startsWith('Exploration of'))) {
+      if (socraticResult.isIrrelevant) {
+        chat.topic = 'Invalid Context';
+      } else {
+        chat.topic = await generateTopic(content);
+      }
+    }
+    
     await chat.save();
 
     res.json({ 
       success: true, 
       data: aiMessage,
+      topic: chat.topic,
       isIrrelevant: socraticResult.isIrrelevant 
     });
   } catch (error: any) {

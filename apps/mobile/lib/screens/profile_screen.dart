@@ -7,6 +7,7 @@ import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_controller.dart';
 import 'auth_screen.dart';
+import 'explore_courses_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,7 +24,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    BackendApiService.instance.refreshNotifier.addListener(_loadProfile);
     _loadProfile();
+  }
+
+  @override
+  void dispose() {
+    BackendApiService.instance.refreshNotifier.removeListener(_loadProfile);
+    super.dispose();
   }
 
   @override
@@ -111,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 border: Border.all(color: palette.surfaceLow, width: 3),
                               ),
                               child: Icon(Icons.edit_rounded, 
-                                color: palette.primaryDim, size: 16),
+                                color: Colors.white, size: 16),
                             ),
                           ],
                         ),
@@ -198,6 +206,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Action Group: Support
                     _SectionHeader(title: 'General'),
+                    const SizedBox(height: 12),
+                    _ActionTile(
+                      icon: Icons.explore_rounded,
+                      title: 'Explore Courses',
+                      subtitle: 'Discover and add more subjects to your path',
+                      onTap: () {
+                        Navigator.pushNamed(context, ExploreCoursesScreen.routeName);
+                      },
+                    ),
                     const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.support_agent_rounded,

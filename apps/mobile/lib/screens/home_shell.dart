@@ -34,20 +34,32 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Text(
-          AppConfig.appName,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/logo.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
               ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              AppConfig.appName,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                  ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            onPressed: () => themeController.next(),
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: palette.textMuted,
-            ),
+            onPressed: () => ThemeControllerScope.of(context).next(),
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'Switch Theme',
           ),
           GestureDetector(
             onTap: () => setState(() => currentIndex = 2),
@@ -65,7 +77,10 @@ class _HomeShellState extends State<HomeShell> {
         ],
         backgroundColor: Colors.transparent,
       ),
-      body: screens[currentIndex],
+      body: IndexedStack(
+        index: currentIndex,
+        children: screens,
+      ),
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(

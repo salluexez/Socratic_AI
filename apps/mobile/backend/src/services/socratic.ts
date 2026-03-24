@@ -45,3 +45,23 @@ export const getSocraticResponse = async (
     throw error;
   }
 };
+
+export const generateTopic = async (message: string): Promise<string> => {
+  try {
+    const response = await fetch(`${SOCRATIC_AI_URL}/generate-topic`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    if (!response.ok) return 'New Session';
+    
+    const data = await response.json() as { topic: string };
+    return data.topic || 'New Session';
+  } catch (error) {
+    console.error('Topic Generation Error:', error);
+    return 'New Session';
+  }
+};

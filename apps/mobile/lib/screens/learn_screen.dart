@@ -6,6 +6,7 @@ import '../services/backend_api_service.dart';
 import '../services/subject_catalog.dart';
 import '../theme/app_theme.dart';
 import '../widgets/subject_card.dart';
+import '../controllers/course_controller.dart';
 import 'chat_screen.dart';
 
 class LearnScreen extends StatefulWidget {
@@ -59,21 +60,30 @@ class _LearnScreenState extends State<LearnScreen> {
             LayoutBuilder(
               builder: (context, constraints) {
                 final isCompact = constraints.maxWidth < 360;
-                return GridView.builder(
-                  itemCount: SubjectCatalog.subjects.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: isCompact ? 1 : 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    mainAxisExtent: isCompact ? 340 : 360,
-                  ),
-                  itemBuilder: (context, index) {
-                    final subject = SubjectCatalog.subjects[index];
-                    return SubjectCard(
-                      subject: subject,
-                      onTap: () => _openChat(context, subject),
+                final courseController = CourseControllerScope.of(context);
+                
+                return ValueListenableBuilder<List<String>>(
+                  valueListenable: courseController,
+                  builder: (context, selectedSlugs, _) {
+                    final subjects = courseController.activeSubjects;
+                    
+                    return GridView.builder(
+                      itemCount: subjects.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isCompact ? 1 : 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        mainAxisExtent: isCompact ? 200 : 210,
+                      ),
+                      itemBuilder: (context, index) {
+                        final subject = subjects[index];
+                        return SubjectCard(
+                          subject: subject,
+                          onTap: () => _openChat(context, subject),
+                        );
+                      },
                     );
                   },
                 );

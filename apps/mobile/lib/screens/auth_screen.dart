@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/app_config.dart';
 import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/theme_controller.dart';
 import '../widgets/gradient_button.dart';
 import 'home_shell.dart';
 
@@ -37,13 +38,46 @@ class _AuthScreenState extends State<AuthScreen> {
     final palette = context.palette;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () => ThemeControllerScope.of(context).next(),
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'Switch Theme',
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: palette.primaryDim.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(60),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               Text(
                 isSignIn ? 'Welcome back' : 'Create your account',
                 style: Theme.of(context).textTheme.displayMedium,
@@ -75,7 +109,10 @@ class _AuthScreenState extends State<AuthScreen> {
               if (!isSignIn) ...[
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Full name'),
+                  decoration: const InputDecoration(
+                    labelText: 'Full name',
+                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -83,7 +120,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                ),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -93,6 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 onSubmitted: (_) => _submitAuth(),
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outline_rounded),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {

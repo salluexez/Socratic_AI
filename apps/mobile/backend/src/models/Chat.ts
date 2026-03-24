@@ -9,8 +9,11 @@ export interface IMessage {
 export interface IChatDocument extends Document {
   userId: mongoose.Types.ObjectId;
   subject: string;
+  topic?: string;
   messages: IMessage[];
   isActive: boolean;
+  attemptCount: number;
+  duration?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,8 +28,11 @@ const chatSchema = new Schema<IChatDocument>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     subject: { type: String, required: true },
+    topic: { type: String },
     messages: [messageSchema],
     isActive: { type: Boolean, default: true },
+    attemptCount: { type: Number, default: 0 },
+    duration: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

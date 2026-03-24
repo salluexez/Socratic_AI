@@ -76,6 +76,23 @@ export const endSession = async (req: Request, res: Response) => {
     res.json({ success: true, data: chat });
   } catch (error) {
     console.error('End Session Error:', error);
-    res.status(500).json({ success: false, error: 'Failed to end session' });
+  }
+};
+
+export const deleteSession = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = (req as any).user._id;
+
+  try {
+    const result = await ChatModel.deleteOne({ _id: id, userId });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Session not found' });
+    }
+
+    res.json({ success: true, message: 'Session deleted successfully' });
+  } catch (error) {
+    console.error('Delete Session Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete session' });
   }
 };

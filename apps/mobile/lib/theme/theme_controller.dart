@@ -1,10 +1,32 @@
 import 'package:flutter/material.dart';
 
-class ThemeController extends ValueNotifier<int> {
-  ThemeController() : super(0);
+import 'package:shared_preferences/shared_preferences.dart';
 
-  void next() {
-    value = (value + 1) % 6; // 6 total themes
+class ThemeController extends ValueNotifier<int> {
+  ThemeController(int initialIndex) : super(initialIndex);
+
+  static const String _themeKey = 'theme_index';
+
+  Future<void> next() async {
+    final nextIndex = (value + 1) % 6; // 6 total themes
+    value = nextIndex;
+    
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_themeKey, nextIndex);
+    } catch (_) {
+      debugPrint('Error saving theme: $_');
+    }
+  }
+  
+  static Future<int> getSavedTheme() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getInt(_themeKey) ?? 0;
+    } catch (_) {
+      debugPrint('Error loading theme: $_');
+      return 0;
+    }
   }
 }
 

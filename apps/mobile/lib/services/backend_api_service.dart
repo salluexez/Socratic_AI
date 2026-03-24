@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -10,10 +11,17 @@ class BackendApiService {
   BackendApiService._();
 
   static final BackendApiService instance = BackendApiService._();
+  
+  /// Notifies listeners when data (like sessions) has changed and screens should refresh.
+  final ValueNotifier<int> refreshNotifier = ValueNotifier<int>(0);
 
   final http.Client _client = http.Client();
   String? _cookie;
   ApiUser? currentUser;
+
+  void notifyDataChanged() {
+    refreshNotifier.value++;
+  }
 
   bool get isConfigured => AppConfig.hasApiBaseUrl;
   bool get isAuthenticated => _cookie != null;
@@ -134,8 +142,10 @@ class BackendApiService {
     );
 
     if (response.statusCode != 201) _throwApiError(response);
-    return ApiSession.fromJson(
+    final session = ApiSession.fromJson(
         _parseBody(response)['data'] as Map<String, dynamic>);
+    notifyDataChanged();
+    return session;
   }
 
   Future<List<ApiSession>> getSessions({String? subject}) async {
@@ -168,7 +178,7 @@ class BackendApiService {
     );
   }
 
-  Future<String> sendChatMessage({
+  Future<ChatResult> sendChatMessage({
     required String sessionId,
     required String content,
   }) async {
@@ -182,8 +192,23 @@ class BackendApiService {
     );
 
     if (response.statusCode != 200) _throwApiError(response);
-    final data = _parseBody(response)['data'] as Map<String, dynamic>;
-    return (data['content'] ?? '') as String;
+    final body = _parseBody(response);
+    final data = body['data'] as Map<String, dynamic>;
+    notifyDataChanged();
+    return ChatResult(
+      reply: (data['content'] ?? '') as String,
+      topic: body['topic'] as String?,
+    );
+  }
+
+  Future<void> deleteSession(String sessionId) async {
+    final response = await _client.delete(
+      _uri('/sessions/$sessionId'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    notifyDataChanged();
   }
 }
 
@@ -194,4 +219,10 @@ class BackendApiException implements Exception {
 
   @override
   String toString() => message;
+}
+
+class ChatResult {
+  const ChatResult({required this.reply, this.topic});
+  final String reply;
+  final String? topic;
 }

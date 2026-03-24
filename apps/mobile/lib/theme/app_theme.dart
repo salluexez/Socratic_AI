@@ -366,23 +366,24 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: palette.surfaceLow,
+        fillColor: isDark ? palette.surfaceLow : Colors.white,
         labelStyle: TextStyle(color: palette.textMuted),
         hintStyle: TextStyle(color: palette.textMuted),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: palette.outline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: palette.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
           borderSide: BorderSide(
-            color: AppColors.primary.withValues(alpha: 0.35),
+            color: palette.primaryDim,
+            width: 1.5,
           ),
         ),
       ),
