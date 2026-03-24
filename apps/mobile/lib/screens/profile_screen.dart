@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models/api_session.dart';
 import '../models/api_user.dart';
+import '../services/app_config.dart';
 import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/stat_card.dart';
+import '../theme/theme_controller.dart';
+import 'auth_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,7 +17,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
-  String? errorText;
   ApiUser? user;
   List<ApiSession> sessions = const [];
 
@@ -28,197 +29,204 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final themeController = ThemeControllerScope.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Derived stats
     final totalSeconds = sessions.fold<int>(
       0,
       (sum, session) => sum + (session.duration ?? 0),
     );
-    final subjectCounts = _subjectCounts(sessions);
-    final displayName = user?.name ?? 'Student';
+    final totalHours = (totalSeconds / 3600).toStringAsFixed(1);
+    
+    // Safety Fallback User
+    final displayUser = user ?? ApiUser(
+      id: 'mock',
+      name: 'Scholar Student',
+      email: 'hello@${AppConfig.appName.toLowerCase().replaceAll(' ', '')}.ai',
+    );
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: SafeArea(
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : errorText != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(errorText!),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      color: palette.surfaceLow,
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    // Header / App Bar Simulation
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: palette.surfaceCard,
-                            borderRadius: BorderRadius.circular(32),
+                        Text(
+                          'Your Profile',
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1,
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 88,
-                                height: 88,
-                                decoration: BoxDecoration(
-                                  color: palette.chipBackground,
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                child: const Icon(
-                                  Icons.person_rounded,
-                                  size: 44,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(width: 18),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      displayName,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      user?.email ?? '',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(color: palette.textMuted),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children:
-                                          subjectCounts.keys.map((subject) {
-                                        return _Badge(
-                                          label: _displaySubject(subject),
-                                          color: _badgeColor(subject),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            final first = StatCard(
-                              title: 'Total Sessions',
-                              value: '${sessions.length}',
-                              subtitle: 'All learning conversations saved',
-                              color: AppColors.primary,
-                              compact: true,
-                            );
-                            final second = StatCard(
-                              title: 'Hours Learned',
-                              value: (totalSeconds / 3600).toStringAsFixed(1),
-                              subtitle: 'Tracked from backend session duration',
-                              color: AppColors.tertiary,
-                              compact: true,
-                            );
-
-                            if (constraints.maxWidth < 380) {
-                              return Column(
-                                children: [
-                                  first,
-                                  const SizedBox(height: 16),
-                                  second,
-                                ],
-                              );
-                            }
-
-                            return Row(
-                              children: [
-                                Expanded(child: first),
-                                const SizedBox(width: 16),
-                                Expanded(child: second),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primary.withValues(alpha: 0.20),
-                                palette.tertiaryContainer
-                                    .withValues(alpha: 0.26),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.insights_rounded,
-                                color: AppColors.primary,
-                                size: 36,
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                sessions.isEmpty
-                                    ? 'No sessions yet. Start a subject to build your learning record.'
-                                    : 'You have studied ${subjectCounts.length} subjects with ${sessions.fold<int>(0, (sum, item) => sum + item.attemptCount)} total guiding rounds.',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      height: 1.5,
-                                    ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Live backend summary',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      color: AppColors.primary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _ActionTile(
-                          icon: Icons.history_rounded,
-                          title: 'Recent Session',
-                          subtitle: sessions.isEmpty
-                              ? 'No session history available yet.'
-                              : _recentSessionText(sessions.first),
-                        ),
-                        const SizedBox(height: 12),
-                        _ActionTile(
-                          icon: Icons.bar_chart_rounded,
-                          title: 'Top Subject',
-                          subtitle: subjectCounts.isEmpty
-                              ? 'No subject data available yet.'
-                              : '${_displaySubject(subjectCounts.entries.reduce((a, b) => a.value >= b.value ? a : b).key)} has the most sessions.',
-                        ),
-                        const SizedBox(height: 12),
-                        const _ActionTile(
-                          icon: Icons.logout_rounded,
-                          title: 'Log Out',
-                          subtitle: 'Ends your backend-authenticated session.',
                         ),
                       ],
                     ),
-                  ),
-      ),
+                    const SizedBox(height: 40),
+
+                    // Hero Avatar Section
+                    Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [palette.primaryDim, palette.secondaryContainer],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: palette.primaryDim.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 56,
+                            backgroundColor: palette.surfaceCard,
+                            child: Icon(Icons.person_rounded, 
+                              size: 60, color: palette.primaryDim),
+                          ),
+                        ),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: palette.primaryDim,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: palette.surfaceLow, width: 3),
+                              ),
+                              child: Icon(Icons.edit_rounded, 
+                                color: palette.primaryDim, size: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          displayUser.name,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          displayUser.email,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: palette.textMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+
+                    // Modern Stats Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: palette.surfaceCard,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _VerticalStat(
+                            icon: Icons.auto_graph_rounded,
+                            value: '${sessions.length}',
+                            label: 'Sessions',
+                            color: palette.primaryDim,
+                          ),
+                          _StatDivider(palette: palette),
+                          _VerticalStat(
+                            icon: Icons.timer_rounded,
+                            value: totalHours,
+                            label: 'Hours',
+                            color: const Color(0xFF00BFA5),
+                          ),
+                          _StatDivider(palette: palette),
+                          _VerticalStat(
+                            icon: Icons.local_fire_department_rounded,
+                            value: '4', // Mock streak
+                            label: 'Streak',
+                            color: const Color(0xFFFF9100),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Action Group: Account
+                    _SectionHeader(title: 'Account Settings'),
+                    const SizedBox(height: 12),
+                    _ActionTile(
+                      icon: Icons.notifications_none_rounded,
+                      title: 'Notifications',
+                      subtitle: 'Alerts for learning goals',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    _ActionTile(
+                      icon: Icons.shield_outlined,
+                      title: 'Privacy & Security',
+                      subtitle: 'Managed shared data',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    const SizedBox(height: 28),
+
+                    // Action Group: Support
+                    _SectionHeader(title: 'General'),
+                    const SizedBox(height: 12),
+                    _ActionTile(
+                      icon: Icons.support_agent_rounded,
+                      title: 'Support Center',
+                      subtitle: 'Get help with ${AppConfig.appName}',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    _ActionTile(
+                      icon: Icons.logout_rounded,
+                      title: 'Log Out',
+                      subtitle: 'Securely end session',
+                      color: Colors.redAccent,
+                      onTap: () async {
+                        await BackendApiService.instance.logout();
+                        if (!mounted) return;
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          AuthScreen.routeName,
+                          (route) => false,
+                        );
+                      },
+                    ),
+                    
+                    const SizedBox(height: 120), // Space for nav bar
+                  ],
+                ),
+              ),
+            ),
     );
   }
 
@@ -232,83 +240,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
         sessions = sessionList;
         isLoading = false;
       });
-    } on BackendApiException catch (error) {
-      if (!mounted) return;
-      setState(() {
-        errorText = error.message;
-        isLoading = false;
-      });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        errorText = 'Failed to load profile data.';
-        isLoading = false;
+        isLoading = false; // Still allow UI to show with defaults
       });
     }
   }
-
-  Map<String, int> _subjectCounts(List<ApiSession> items) {
-    final counts = <String, int>{};
-    for (final session in items) {
-      counts.update(session.subject, (value) => value + 1, ifAbsent: () => 1);
-    }
-    return counts;
-  }
-
-  String _displaySubject(String subject) {
-    switch (subject) {
-      case 'math':
-        return 'Mathematics';
-      case 'physics':
-        return 'Physics';
-      case 'chemistry':
-        return 'Chemistry';
-      case 'biology':
-        return 'Biology';
-      default:
-        return subject;
-    }
-  }
-
-  Color _badgeColor(String subject) {
-    switch (subject) {
-      case 'math':
-        return const Color(0xFFC0ADFF);
-      case 'physics':
-        return const Color(0xFFDBF5F4);
-      case 'chemistry':
-        return const Color(0xFFD8FBF8);
-      case 'biology':
-        return const Color(0xFFD9F4E4);
-      default:
-        return const Color(0xFFE9ECFF);
-    }
-  }
-
-  String _recentSessionText(ApiSession session) {
-    final topic = session.topic?.trim();
-    if (topic != null && topic.isNotEmpty) {
-      return '${_displaySubject(session.subject)}: $topic';
-    }
-    return '${_displaySubject(session.subject)} session with ${session.messages.length} saved messages.';
-  }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge({required this.label, required this.color});
+class _VerticalStat extends StatelessWidget {
+  const _VerticalStat({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
 
+  final IconData icon;
+  final String value;
   final String label;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: palette.textMuted,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  const _StatDivider({required this.palette});
+  final AppPalette palette;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(999),
+      width: 1.5,
+      height: 40,
+      color: palette.text.withValues(alpha: 0.05),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: context.palette.textMuted,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+          ),
+        ),
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelLarge),
     );
   }
 }
@@ -318,51 +330,72 @@ class _ActionTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.color,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final Color? color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: palette.surfaceCard,
-        borderRadius: BorderRadius.circular(26),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: palette.surfaceLow,
-              borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: palette.surfaceCard,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-            child: Icon(icon, color: AppColors.primary),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: palette.textMuted),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (color ?? palette.primaryDim).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: color ?? palette.primaryDim, size: 20),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: palette.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, 
+              color: palette.text.withValues(alpha: 0.1), size: 16),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 class AppConfig {
+  static const appName = 'Socratic AI';
   static const geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
   static const geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
@@ -6,7 +7,7 @@ class AppConfig {
   );
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: '',
+    defaultValue: 'http://10.20.150.66:5000',
   );
 
   static bool get hasGeminiKey => geminiApiKey.trim().isNotEmpty;

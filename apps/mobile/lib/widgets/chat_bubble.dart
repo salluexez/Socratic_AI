@@ -12,28 +12,35 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = message.role == 'user';
     final palette = context.palette;
-    final radius = BorderRadius.only(
-      topLeft: Radius.circular(isUser ? 30 : 10),
-      topRight: Radius.circular(isUser ? 10 : 30),
-      bottomLeft: const Radius.circular(30),
-      bottomRight: const Radius.circular(30),
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final radius = isUser
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            bottomLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+            bottomRight: Radius.circular(10),
+          )
+        : const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+            bottomLeft: Radius.circular(10),
+          );
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 320),
         margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primary : palette.surfaceCard,
+          color: isUser ? palette.primaryDim : palette.surfaceCard,
           borderRadius: radius,
           boxShadow: [
             BoxShadow(
-              color: (isUser ? AppColors.primary : palette.outline)
-                  .withValues(alpha: 0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
+              color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -49,20 +56,21 @@ class ChatBubble extends StatelessWidget {
             if (!isUser && message.isHint) ...[
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: palette.surfaceLow,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: palette.outline, width: 1),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.lightbulb_rounded,
-                        color: AppColors.primary),
+                    Icon(Icons.lightbulb_rounded,
+                        color: palette.primaryDim),
                     const SizedBox(width: 10),
                     Text(
                       'Hint 1/5 available',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: AppColors.primary,
+                            color: palette.primaryDim,
                           ),
                     ),
                   ],

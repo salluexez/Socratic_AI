@@ -16,22 +16,21 @@ class SubjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
         child: Ink(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: palette.surfaceCard,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: subject.accent.withValues(alpha: 0.08),
-                blurRadius: 28,
-                offset: const Offset(0, 16),
+                color: isDark ? Colors.black.withValues(alpha: 0.3) : palette.text.withValues(alpha: 0.05),
+                blurRadius: 25,
+                offset: const Offset(0, 12),
               ),
             ],
           ),
@@ -39,13 +38,13 @@ class SubjectCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 62,
-                height: 62,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: subject.accent.withValues(alpha: 0.12),
+                  color: subject.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(subject.icon, color: subject.accent, size: 30),
+                child: Icon(subject.icon, color: subject.accent, size: 24),
               ),
               const SizedBox(height: 18),
               if (subject.resumeLabel != null)
@@ -76,18 +75,18 @@ class SubjectCard extends StatelessWidget {
                       ),
                 ),
               ),
-              const SizedBox(height: 18),
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
+                spacing: 6,
                 children: [
                   Text(
-                    'Begin inquiry',
+                    'Resume session',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: subject.accent,
+                          fontWeight: FontWeight.bold,
                         ),
                   ),
-                  Icon(Icons.arrow_forward_rounded, color: subject.accent),
+                  Icon(Icons.arrow_forward_ios_rounded, color: subject.accent, size: 14),
                 ],
               ),
             ],

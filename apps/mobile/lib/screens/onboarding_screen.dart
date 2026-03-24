@@ -31,7 +31,7 @@ class OnboardingScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(36),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.08),
+                          color: palette.primaryDim.withValues(alpha: 0.08),
                           blurRadius: 36,
                           offset: const Offset(0, 16),
                         ),
@@ -83,11 +83,11 @@ class OnboardingScreen extends StatelessWidget {
                           ),
                           child: Stack(
                             children: [
-                              const Center(
+                              Center(
                                 child: Icon(
                                   Icons.auto_awesome_rounded,
                                   size: 120,
-                                  color: AppColors.primary,
+                                  color: palette.primaryDim,
                                 ),
                               ),
                               Positioned(
@@ -101,13 +101,13 @@ class OnboardingScreen extends StatelessWidget {
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       CircleAvatar(
                                         radius: 16,
-                                        backgroundColor: AppColors.primary,
-                                        child: Icon(
+                                        backgroundColor: palette.primaryDim,
+                                        child: const Icon(
                                           Icons.lightbulb_rounded,
                                           size: 18,
                                           color: Colors.white,
@@ -136,7 +136,7 @@ class OnboardingScreen extends StatelessWidget {
                                   ),
                         ),
                         const SizedBox(height: 24),
-                        const Wrap(
+                        Wrap(
                           spacing: 10,
                           runSpacing: 10,
                           children: [
@@ -192,7 +192,7 @@ class _FeatureChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: AppColors.primary),
+          Icon(icon, size: 18, color: context.palette.primaryDim),
           const SizedBox(width: 8),
           Text(label),
         ],

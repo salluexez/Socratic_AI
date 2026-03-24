@@ -208,7 +208,11 @@ class _AuthScreenState extends State<AuthScreen> {
       await BackendApiService.instance.getMe();
 
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, HomeShell.routeName);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        HomeShell.routeName,
+        (route) => false,
+      );
     } on BackendApiException catch (error) {
       setState(() {
         errorText = error.message;
@@ -296,7 +300,8 @@ class _ToggleButton extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: isActive ? AppColors.primary : palette.textMuted,
+                  color: isActive ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : palette.primaryDim) : palette.textMuted,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 ),
           ),
         ),

@@ -15,14 +15,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.outline,
     required this.success,
     required this.heroBackground,
+    required this.primaryGradient,
     required this.chipBackground,
     required this.orbTop,
     required this.orbBottom,
     required this.inputBar,
+    required this.surfaceElevated,
   });
 
   final Color surfaceLow;
   final Color surfaceCard;
+  final Color surfaceElevated;
   final Color primaryDim;
   final Color primaryContainer;
   final Color secondaryContainer;
@@ -32,12 +35,13 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color outline;
   final Color success;
   final Color heroBackground;
+  final LinearGradient primaryGradient;
   final Color chipBackground;
   final Color orbTop;
   final Color orbBottom;
   final Color inputBar;
 
-  static const light = AppPalette(
+  static const milkshake = AppPalette(
     surfaceLow: Color(0xFFF1F4F6),
     surfaceCard: Color(0xFFFFFFFF),
     primaryDim: Color(0xFF3C3CCF),
@@ -46,31 +50,119 @@ class AppPalette extends ThemeExtension<AppPalette> {
     tertiaryContainer: Color(0xFFC0ADFF),
     text: Color(0xFF2D3337),
     textMuted: Color(0xFF596063),
-    outline: Color(0xFFACB3B7),
+    outline: Color(0xFFE2E8F0),
     success: Color(0xFF1D8F61),
     heroBackground: Color(0xFFEFF2FF),
+    primaryGradient: LinearGradient(colors: [Color(0xFF3C3CCF), Color(0xFF68FAFF)]),
     chipBackground: Color(0xFFE9ECFF),
     orbTop: Color(0x3357EBF0),
     orbBottom: Color(0x33C0ADFF),
     inputBar: Color(0xEAFEFEFE),
+    surfaceElevated: Color(0xFFF8FAFB),
   );
 
-  static const dark = AppPalette(
-    surfaceLow: Color(0xFF181E2B),
-    surfaceCard: Color(0xFF101522),
-    primaryDim: Color(0xFF7078FF),
-    primaryContainer: Color(0xFF30348B),
-    secondaryContainer: Color(0xFF11474A),
-    tertiaryContainer: Color(0xFF3B2B6D),
-    text: Color(0xFFF1F4FA),
-    textMuted: Color(0xFF9DA8BC),
-    outline: Color(0xFF455066),
-    success: Color(0xFF55C692),
-    heroBackground: Color(0xFF151A2B),
-    chipBackground: Color(0xFF1B2140),
-    orbTop: Color(0x33494ADB),
-    orbBottom: Color(0x333B2B6D),
-    inputBar: Color(0xED0B1020),
+  static const modernInk = AppPalette(
+    surfaceLow: Color(0xFFF7F2E8),
+    surfaceCard: Color(0xFFFFFFFF),
+    primaryDim: Color(0xFFD32F2F),
+    primaryContainer: Color(0xFFFFCDD2),
+    secondaryContainer: Color(0xFF8D6E63),
+    tertiaryContainer: Color(0xFF4E342E),
+    text: Color(0xFF212121),
+    textMuted: Color(0xFF757575),
+    outline: Color(0xFFD7CCC8),
+    success: Color(0xFF388E3C),
+    heroBackground: Color(0xFFF1EAD7),
+    primaryGradient: LinearGradient(colors: [Color(0xFFD32F2F), Color(0xFF8D6E63)]),
+    chipBackground: Color(0xFFFFE0B2),
+    orbTop: Color(0x22D32F2F),
+    orbBottom: Color(0x228D6E63),
+    inputBar: Color(0xFFFFFFFF),
+    surfaceElevated: Color(0xFFFCF9F3),
+  );
+
+  static const carbon = AppPalette(
+    surfaceLow: Color(0xFF1F1F1F),
+    surfaceCard: Color(0xFF2D2D2D),
+    surfaceElevated: Color(0xFF353535),
+    primaryDim: Color(0xFFF66E0D),
+    primaryContainer: Color(0xFF4A2B15),
+    secondaryContainer: Color(0xFF3A3A3A),
+    tertiaryContainer: Color(0xFFF66E0D),
+    text: Color(0xFFE3E3E3),
+    textMuted: Color(0xFF929292),
+    outline: Color(0xFF3F3F3F),
+    success: Color(0xFF86B300),
+    heroBackground: Color(0xFF1F1F1F),
+    primaryGradient: LinearGradient(colors: [Color(0xFFF66E0D), Color(0xFF3A3A3A)]),
+    chipBackground: Color(0xFF2A2A2A),
+    orbTop: Color(0x22F66E0D),
+    orbBottom: Color(0x223A3A3A),
+    inputBar: Color(0xFF1A1A1A),
+  );
+
+  static const monkey8008 = AppPalette(
+    surfaceLow: Color(0xFF333A45),
+    surfaceCard: Color(0xFF3E4451),
+    surfaceElevated: Color(0xFF4B5262),
+    primaryDim: Color(0xFFF44C7F),
+    primaryContainer: Color(0xFF3D2B3D),
+    secondaryContainer: Color(0xFF00CED1),
+    tertiaryContainer: Color(0xFF673AB7),
+    text: Color(0xFFE5E9F0),
+    textMuted: Color(0xFF9BABBC),
+    outline: Color(0xFF4B5262),
+    success: Color(0xFF98C379),
+    heroBackground: Color(0xFF333A45),
+    primaryGradient: LinearGradient(colors: [Color(0xFFF44C7F), Color(0xFF00CED1)]),
+    chipBackground: Color(0xFF3E4451),
+    orbTop: Color(0x22F44C7F),
+    orbBottom: Color(0x2200CED1),
+    inputBar: Color(0xFF2C313A),
+  );
+
+  static const dracula = AppPalette(
+    surfaceLow: Color(0xFF282A36),
+    surfaceCard: Color(0xFF44475A),
+    surfaceElevated: Color(0xFF6272A4),
+    primaryDim: Color(0xFFBD93F9),
+    primaryContainer: Color(0xFF44475A),
+    secondaryContainer: Color(0xFF50FA7B),
+    tertiaryContainer: Color(0xFFFF79C6),
+    text: Color(0xFFF8F8F2),
+    textMuted: Color(0xFF6272A4),
+    outline: Color(0xFF44475A),
+    success: Color(0xFF50FA7B),
+    heroBackground: Color(0xFF282A36),
+    primaryGradient: LinearGradient(colors: [Color(0xFFBD93F9), Color(0xFFFF79C6)]),
+    chipBackground: Color(0xFF44475A),
+    orbTop: Color(0x22BD93F9),
+    orbBottom: Color(0x22FF79C6),
+    inputBar: Color(0xFF1E1F29),
+  );
+
+  static const deepSpace = AppPalette(
+    surfaceLow: Color(0xFF000000), // OLED Black
+    surfaceCard: Color(0xFF0C0E14),
+    surfaceElevated: Color(0xFF12141C),
+    primaryDim: Color(0xFFA855F7),
+    primaryContainer: Color(0xFF1E1B4B),
+    secondaryContainer: Color(0xFF083344),
+    tertiaryContainer: Color(0xFF2E1065),
+    text: Color(0xFFF8FAFC),
+    textMuted: Color(0xFF64748B),
+    outline: Color(0xFF1E293B),
+    success: Color(0xFF10B981),
+    heroBackground: Color(0xFF000000),
+    primaryGradient: LinearGradient(
+      colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    chipBackground: Color(0xFF1e1b4b),
+    orbTop: Color(0x227C3AED),
+    orbBottom: Color(0x2206B6D4),
+    inputBar: Color(0xED020617),
   );
 
   @override
@@ -86,14 +178,17 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? outline,
     Color? success,
     Color? heroBackground,
+    LinearGradient? primaryGradient,
     Color? chipBackground,
     Color? orbTop,
     Color? orbBottom,
     Color? inputBar,
+    Color? surfaceElevated,
   }) {
     return AppPalette(
       surfaceLow: surfaceLow ?? this.surfaceLow,
       surfaceCard: surfaceCard ?? this.surfaceCard,
+      surfaceElevated: surfaceElevated ?? this.surfaceElevated,
       primaryDim: primaryDim ?? this.primaryDim,
       primaryContainer: primaryContainer ?? this.primaryContainer,
       secondaryContainer: secondaryContainer ?? this.secondaryContainer,
@@ -103,6 +198,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
       outline: outline ?? this.outline,
       success: success ?? this.success,
       heroBackground: heroBackground ?? this.heroBackground,
+      primaryGradient: primaryGradient ?? this.primaryGradient,
       chipBackground: chipBackground ?? this.chipBackground,
       orbTop: orbTop ?? this.orbTop,
       orbBottom: orbBottom ?? this.orbBottom,
@@ -128,10 +224,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
       outline: Color.lerp(outline, other.outline, t)!,
       success: Color.lerp(success, other.success, t)!,
       heroBackground: Color.lerp(heroBackground, other.heroBackground, t)!,
+      primaryGradient: LinearGradient.lerp(primaryGradient, other.primaryGradient, t)!,
       chipBackground: Color.lerp(chipBackground, other.chipBackground, t)!,
       orbTop: Color.lerp(orbTop, other.orbTop, t)!,
       orbBottom: Color.lerp(orbBottom, other.orbBottom, t)!,
       inputBar: Color.lerp(inputBar, other.inputBar, t)!,
+      surfaceElevated: Color.lerp(surfaceElevated, other.surfaceElevated, t)!,
     );
   }
 }
@@ -141,29 +239,30 @@ extension AppPaletteX on BuildContext {
 }
 
 class AppColors {
-  static const primary = Color(0xFF494ADB);
-  static const secondary = Color(0xFF006A6D);
-  static const tertiary = Color(0xFF664ABE);
+  static const primary = Color(0xFFA855F7); // Vibrant Purple
+  static const secondary = Color(0xFF06B6D4); // Electric Cyan
+  static const tertiary = Color(0xFF7C3AED);
 }
 
 class AppTheme {
-  static ThemeData get lightTheme => _theme(
-        brightness: Brightness.light,
-        scaffold: const Color(0xFFF7F9FB),
-        palette: AppPalette.light,
-      );
+  static List<ThemeData> get themes => [
+        _theme(brightness: Brightness.light, scaffold: AppPalette.milkshake.surfaceLow, palette: AppPalette.milkshake),
+        _theme(brightness: Brightness.light, scaffold: AppPalette.modernInk.surfaceLow, palette: AppPalette.modernInk),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.carbon.surfaceLow, palette: AppPalette.carbon),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.monkey8008.surfaceLow, palette: AppPalette.monkey8008),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.dracula.surfaceLow, palette: AppPalette.dracula),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.deepSpace.surfaceLow, palette: AppPalette.deepSpace),
+      ];
 
-  static ThemeData get darkTheme => _theme(
-        brightness: Brightness.dark,
-        scaffold: const Color(0xFF070B14),
-        palette: AppPalette.dark,
-      );
+  static ThemeData get lightTheme => themes[0];
+  static ThemeData get darkTheme => themes[5];
 
   static ThemeData _theme({
     required Brightness brightness,
     required Color scaffold,
     required AppPalette palette,
   }) {
+    final isDark = brightness == Brightness.dark;
     final textTheme = TextTheme(
       displayLarge: GoogleFonts.plusJakartaSans(
         fontSize: 40,
@@ -212,11 +311,11 @@ class AppTheme {
       brightness: brightness,
       scaffoldBackgroundColor: scaffold,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
+        seedColor: palette.primaryDim,
         brightness: brightness,
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        tertiary: AppColors.tertiary,
+        primary: palette.primaryDim,
+        secondary: palette.secondaryContainer,
+        tertiary: palette.tertiaryContainer,
         surface: scaffold,
       ),
       textTheme: textTheme,
@@ -232,18 +331,37 @@ class AppTheme {
         color: palette.surfaceCard,
         elevation: 0,
         margin: EdgeInsets.zero,
+        shadowColor: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(24),
+          side: isDark ? BorderSide(color: palette.outline, width: 1) : BorderSide.none,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: palette.surfaceCard,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.14),
+        indicatorColor: palette.primaryDim.withValues(alpha: 0.1),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: palette.primaryDim,
+            );
+          }
+          return textTheme.labelSmall;
+        }),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: palette.primaryContainer,
-          foregroundColor: palette.text,
+          backgroundColor: isDark ? palette.primaryDim : palette.primaryContainer,
+          foregroundColor: isDark ? Colors.white : palette.text,
+          elevation: isDark ? 8 : 0,
+          shadowColor: isDark ? palette.primaryDim.withValues(alpha: 0.4) : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

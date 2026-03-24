@@ -33,10 +33,12 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isLoading = false;
   bool isBootstrapping = true;
   String? errorText;
+  String? _currentSessionId;
 
   @override
   void initState() {
     super.initState();
+    _currentSessionId = widget.args.sessionId;
     _loadSession();
   }
 
@@ -49,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,11 +60,26 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(widget.args.subject.name),
             Text(
-              'Backend session',
-              style: Theme.of(context).textTheme.labelMedium,
+              _currentSessionId == null ? 'New session' : 'Current session',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.textMuted,
+                  ),
             ),
           ],
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: isDark
+            ? ClipRect(
+                child: BackdropFilter(
+                  filter: ColorFilter.mode(
+                    palette.surfaceLow.withValues(alpha: 0.8),
+                    BlendMode.srcOver,
+                  ),
+                  child: Container(color: Colors.transparent),
+                ),
+              )
+            : null,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -148,12 +166,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               decoration: BoxDecoration(
                 color: palette.inputBar,
+                border: isDark ? Border(top: BorderSide(color: palette.outline, width: 1)) : null,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.04),
+                    color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.04),
                     blurRadius: 24,
                     offset: const Offset(0, -8),
                   ),
@@ -206,10 +225,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadSession() async {
-    final sessionId = widget.args.sessionId;
-    if (sessionId == null || sessionId.isEmpty) {
+    if (_currentSessionId == null || _currentSessionId!.isEmpty) {
       setState(() {
-        errorText = 'No backend session found for this chat.';
         isBootstrapping = false;
       });
       return;
@@ -217,7 +234,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final session =
-          await BackendApiService.instance.getSessionById(sessionId);
+          await BackendApiService.instance.getSessionById(_currentSessionId!);
       if (!mounted) return;
       setState(() {
         messages
@@ -260,14 +277,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _submitUserMessage(String text) async {
-    final sessionId = widget.args.sessionId;
-    if (sessionId == null || sessionId.isEmpty) {
-      setState(() {
-        errorText = 'No backend session available.';
-      });
-      return;
-    }
-
     final userMessage = ChatMessage(role: 'user', content: text);
     setState(() {
       messages.add(userMessage);
@@ -276,8 +285,15 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
+      if (_currentSessionId == null) {
+        final session = await BackendApiService.instance.createSession(
+          subject: widget.args.subject.slug,
+        );
+        _currentSessionId = session.id;
+      }
+
       final reply = await BackendApiService.instance.sendChatMessage(
-        sessionId: sessionId,
+        sessionId: _currentSessionId!,
         content: text,
       );
 
