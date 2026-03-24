@@ -15,7 +15,7 @@ A chat-based web and mobile application that uses the Socratic method to guide s
 | Monorepo | Turborepo |
 | Frontend — Web (`apps/web`) | Next.js 14+ (App Router), Tailwind CSS, shadcn/ui |
 | Frontend — Mobile (`apps/mobile`) | Expo (React-Native), Expo Router, React Native Paper |
-| Backend (`apps/api`) | Node.js, Express.js, Mongoose |
+| Backend (`apps/backend`) | Node.js, Express.js, Mongoose |
 | Shared (`packages/*`) | TypeScript types, shared configs, shared UI primitives |
 | Database | MongoDB (via Mongoose) |
 | Auth | Custom JWT (bcrypt + jsonwebtoken) — Bearer token strategy |
@@ -244,7 +244,7 @@ The AI follows strict Socratic rules:
 
 ---
 
-## 7. API Endpoints (Backend — `apps/api`)
+## 7. API Endpoints (Backend — `apps/backend`)
 
 Base URL: `http://localhost:5000` (dev) / production URL
 
@@ -618,7 +618,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 EXPO_PUBLIC_API_URL=http://localhost:5000
 ```
 
-### `apps/api/.env`
+### `apps/backend/.env`
 
 ```env
 PORT=5000
