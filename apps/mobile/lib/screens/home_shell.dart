@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'learn_screen.dart';
 import 'profile_screen.dart';
@@ -39,19 +40,34 @@ class _HomeShellState extends State<HomeShell> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
-                'assets/logo.png',
+                'assets/logo.jpg',
                 width: 32,
                 height: 32,
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 12),
-            Text(
-              AppConfig.appName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.5,
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Socratic ',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22,
+                      letterSpacing: -0.8,
+                    ),
                   ),
+                  TextSpan(
+                    text: 'AI',
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w300,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

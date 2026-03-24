@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../models/api_session.dart';
@@ -67,15 +68,29 @@ class _ProgressScreenState extends State<ProgressScreen> {
                         // Custom Header
                         Row(
                           children: [
-                            Text(
-                              'Your Progress',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayMedium
-                                  ?.copyWith(
-                                    fontSize: 28,
-                                    letterSpacing: -0.5,
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Your ',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                      color: palette.textMuted,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
+                                  TextSpan(
+                                    text: 'Progress',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w700,
+                                      color: palette.text,
+                                      letterSpacing: -1.2,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

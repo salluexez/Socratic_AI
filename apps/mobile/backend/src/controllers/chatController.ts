@@ -8,9 +8,16 @@ export const sendMessage = async (req: Request, res: Response) => {
 
   try {
     // We use sessionId as the chatId
+    console.log(`Chat Request: sessionId="${sessionId}", userId="${userId}"`);
     const chat = await ChatModel.findOne({ _id: sessionId, userId });
     
-    if (!chat || !chat.isActive) {
+    if (!chat) {
+      console.warn(`Chat lookup failed for sessionId="${sessionId}", userId="${userId}"`);
+      return res.status(404).json({ success: false, error: 'Active chat session not found' });
+    }
+
+    if (!chat.isActive) {
+      console.warn(`Chat found but is inactive: sessionId="${sessionId}"`);
       return res.status(404).json({ success: false, error: 'Active chat session not found' });
     }
 

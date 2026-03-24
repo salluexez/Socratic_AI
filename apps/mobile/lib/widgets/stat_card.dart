@@ -64,11 +64,11 @@ class StatCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   value,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontSize: compact ? 24 : 32,
                     fontWeight: FontWeight.w700,
                     color: palette.text,
-                    letterSpacing: -0.5,
+                    letterSpacing: -1.0,
                   ),
                 ),
                 const SizedBox(height: 4),

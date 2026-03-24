@@ -28,13 +28,16 @@ class ApiSession {
   });
 
   String get displayTitle {
+    if (topic.isNotEmpty) {
+      return topic;
+    }
     if (messages.isNotEmpty) {
       final firstMessage = messages.first.content.trim();
       if (firstMessage.isNotEmpty) {
         return firstMessage;
       }
     }
-    return topic.isNotEmpty ? topic : 'Untitled Session';
+    return 'Untitled Session';
   }
 
   factory ApiSession.fromJson(Map<String, dynamic> json) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../services/app_config.dart';
 import '../services/backend_api_service.dart';
@@ -71,7 +72,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(60),
                     child: Image.asset(
-                      'assets/logo.png',
+                      'assets/logo.jpg',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -80,7 +81,11 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: 32),
               Text(
                 isSignIn ? 'Welcome back' : 'Create your account',
-                style: Theme.of(context).textTheme.displayMedium,
+                style: GoogleFonts.cookie(
+                  textStyle: Theme.of(context).textTheme.displayMedium,
+                  fontSize: 48,
+                  height: 1.0,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -90,16 +95,16 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
               ),
               const SizedBox(height: 10),
-              Text(
-                AppConfig.hasApiBaseUrl
-                    ? 'Connected to ${AppConfig.apiBaseUrl}'
-                    : 'Set --dart-define=API_BASE_URL=http://YOUR_SERVER:5000 or http://YOUR_SERVER:5000/api',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppConfig.hasApiBaseUrl
-                          ? palette.textMuted
-                          : Colors.orange,
-                    ),
-              ),
+              // Text(
+              //   AppConfig.hasApiBaseUrl
+              //       ? 'Connected to ${AppConfig.apiBaseUrl}'
+              //       : 'Set --dart-define=API_BASE_URL=http://YOUR_SERVER:5000 or http://YOUR_SERVER:5000/api',
+              //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              //         color: AppConfig.hasApiBaseUrl
+              //             ? palette.textMuted
+              //             : Colors.orange,
+              //       ),
+              // ),
               const SizedBox(height: 28),
               _AuthToggle(
                 isSignIn: isSignIn,

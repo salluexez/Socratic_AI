@@ -96,3 +96,28 @@ export const deleteSession = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: 'Failed to delete session' });
   }
 };
+export const renameSession = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { topic } = req.body;
+  const userId = (req as any).user._id;
+
+  try {
+    console.log(`Renaming session ${id} for user ${userId} to "${topic}"`);
+    
+    const chat = await ChatModel.findOne({ _id: id, userId });
+
+    if (!chat) {
+      console.warn(`Session ${id} not found for user ${userId} during rename`);
+      return res.status(404).json({ success: false, error: 'Session not found' });
+    }
+
+    chat.topic = topic;
+    await chat.save();
+
+    console.log(`Session ${id} renamed successfully`);
+    res.json({ success: true, data: chat });
+  } catch (error) {
+    console.error('Rename Session Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to rename session' });
+  }
+};

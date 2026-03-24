@@ -264,42 +264,42 @@ class AppTheme {
   }) {
     final isDark = brightness == Brightness.dark;
     final textTheme = TextTheme(
-      displayLarge: GoogleFonts.plusJakartaSans(
+      displayLarge: GoogleFonts.inter(
         fontSize: 40,
         fontWeight: FontWeight.w800,
         color: palette.text,
       ),
-      displayMedium: GoogleFonts.plusJakartaSans(
+      displayMedium: GoogleFonts.inter(
         fontSize: 30,
         fontWeight: FontWeight.w800,
         color: palette.text,
       ),
-      titleLarge: GoogleFonts.plusJakartaSans(
+      titleLarge: GoogleFonts.inter(
         fontSize: 22,
         fontWeight: FontWeight.w700,
         color: palette.text,
       ),
-      titleMedium: GoogleFonts.plusJakartaSans(
+      titleMedium: GoogleFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w700,
         color: palette.text,
       ),
-      bodyLarge: GoogleFonts.manrope(
+      bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         height: 1.6,
         color: palette.text,
       ),
-      bodyMedium: GoogleFonts.manrope(
+      bodyMedium: GoogleFonts.inter(
         fontSize: 14,
         height: 1.5,
         color: palette.text,
       ),
-      labelLarge: GoogleFonts.manrope(
+      labelLarge: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w700,
         color: palette.text,
       ),
-      labelMedium: GoogleFonts.manrope(
+      labelMedium: GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         color: palette.textMuted,

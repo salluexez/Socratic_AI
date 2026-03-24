@@ -49,6 +49,54 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _renameSession(ApiSession session) async {
+    final controller = TextEditingController(text: session.topic.isNotEmpty ? session.topic : session.displayTitle);
+    
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Session'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Session Name',
+            hintText: 'Enter new name',
+          ),
+          onSubmitted: (value) => Navigator.pop(context, value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+
+    if (newTitle != null && newTitle.trim().isNotEmpty && newTitle != session.topic) {
+      try {
+        await BackendApiService.instance.renameSession(session.id, newTitle.trim());
+        _fetchSessions();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Session renamed')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to rename session: $e')),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _deleteSession(String sessionId) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -99,11 +147,6 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         backgroundColor: palette.surfaceLow,
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: () => ThemeControllerScope.of(context).next(),
-            icon: const Icon(Icons.palette_outlined),
-            tooltip: 'Switch Theme',
-          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _fetchSessions,
@@ -202,9 +245,20 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                 ),
                               ],
                             ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                              onPressed: () => _deleteSession(session.id),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit_outlined, size: 20),
+                                  onPressed: () => _renameSession(session),
+                                  tooltip: 'Rename',
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                                  onPressed: () => _deleteSession(session.id),
+                                  tooltip: 'Delete',
+                                ),
+                              ],
                             ),
                             onTap: () {
                               Navigator.pushNamed(

@@ -210,6 +210,17 @@ class BackendApiService {
     if (response.statusCode != 200) _throwApiError(response);
     notifyDataChanged();
   }
+
+  Future<void> renameSession(String sessionId, String newTitle) async {
+    final response = await _client.patch(
+      _uri('/sessions/$sessionId/rename'),
+      headers: _headers(),
+      body: jsonEncode({'topic': newTitle}),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    notifyDataChanged();
+  }
 }
 
 class BackendApiException implements Exception {
