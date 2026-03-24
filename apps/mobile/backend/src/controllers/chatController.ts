@@ -1,38 +1,52 @@
 import { Request, Response } from 'express';
-import { SessionModel } from '../models/Session';
-import { getSocraticResponse } from '../services/gemini';
+import { ChatModel } from '../models/Chat';
+import { getSocraticResponse } from '../services/socratic';
 
 export const sendMessage = async (req: Request, res: Response) => {
   const { sessionId, content } = req.body;
   const userId = (req as any).user._id;
 
   try {
-    const session = await SessionModel.findOne({ _id: sessionId, userId });
-    if (!session || !session.isActive) {
-      return res.status(404).json({ success: false, error: 'Active session not found' });
+    // We use sessionId as the chatId
+    const chat = await ChatModel.findOne({ _id: sessionId, userId });
+    
+    if (!chat || !chat.isActive) {
+      return res.status(404).json({ success: false, error: 'Active chat session not found' });
     }
 
     // Add user message
-    const userMessage = { role: 'user' as const, content, timestamp: new Date() };
-    session.messages.push(userMessage);
+    const userMessage = { 
+      role: 'user' as const, 
+      content, 
+      timestamp: new Date() 
+    };
+    chat.messages.push(userMessage);
 
-    // Call Gemini for Socratic response
-    // In a real scenario, we'd also pass attempt counting logic here
-    const aiResponseContent = await getSocraticResponse(session.subject, session.messages, session.attemptCount);
+    // Call Socratic AI service
+    // history excludes the current message as it's passed separately
+    const history = chat.messages.slice(0, -1).map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+
+    const socraticResult = await getSocraticResponse(chat.subject, history, content);
     
-    const aiMessage = { role: 'assistant' as const, content: aiResponseContent, timestamp: new Date() };
-    session.messages.push(aiMessage);
+    const aiMessage = { 
+      role: 'assistant' as const, 
+      content: socraticResult.reply, 
+      timestamp: new Date() 
+    };
+    chat.messages.push(aiMessage);
     
-    // Update session (e.g., attemptCount if wrong answer detected)
-    // For simplicity in this initial setup, we increments attempts on every user message
-    // A more sophisticated system would check the content for "wrong" answers
-    session.attemptCount += 1;
+    await chat.save();
 
-    await session.save();
-
-    res.json({ success: true, data: aiMessage });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: 'Failed to process message' });
+    res.json({ 
+      success: true, 
+      data: aiMessage,
+      isIrrelevant: socraticResult.isIrrelevant 
+    });
+  } catch (error: any) {
+    console.error('Chat Controller Error:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to process message' });
   }
 };

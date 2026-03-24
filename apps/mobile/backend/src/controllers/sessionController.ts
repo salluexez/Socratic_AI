@@ -1,23 +1,27 @@
 import { Request, Response } from 'express';
-import { SessionModel } from '../models/Session';
-import { getTopicSummary } from '../services/gemini';
+import { ChatModel } from '../models/Chat';
 
 export const createSession = async (req: Request, res: Response) => {
   const { subject } = req.body;
   const userId = (req as any).user._id;
 
   try {
-    // End existing active session for this subject
-    await SessionModel.updateMany({ userId, subject, isActive: true }, { isActive: false, endedAt: new Date() });
+    // End existing active sessions for this user and subject
+    await ChatModel.updateMany(
+      { userId, subject, isActive: true }, 
+      { isActive: false }
+    );
 
-    const session = await SessionModel.create({
+    const chat = await ChatModel.create({
       userId,
       subject,
       messages: [],
+      isActive: true
     });
 
-    res.status(201).json({ success: true, data: session });
+    res.status(201).json({ success: true, data: chat });
   } catch (error) {
+    console.error('Create Session Error:', error);
     res.status(500).json({ success: false, error: 'Failed to create session' });
   }
 };
@@ -30,9 +34,10 @@ export const getSessions = async (req: Request, res: Response) => {
     const filter: any = { userId };
     if (subject) filter.subject = subject;
 
-    const sessions = await SessionModel.find(filter).sort({ createdAt: -1 });
-    res.json({ success: true, data: sessions });
+    const chats = await ChatModel.find(filter).sort({ createdAt: -1 });
+    res.json({ success: true, data: chats });
   } catch (error) {
+    console.error('Get Sessions Error:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch sessions' });
   }
 };
@@ -42,12 +47,13 @@ export const getSessionById = async (req: Request, res: Response) => {
   const userId = (req as any).user._id;
 
   try {
-    const session = await SessionModel.findOne({ _id: id, userId });
-    if (!session) {
+    const chat = await ChatModel.findOne({ _id: id, userId });
+    if (!chat) {
       return res.status(404).json({ success: false, error: 'Session not found' });
     }
-    res.json({ success: true, data: session });
+    res.json({ success: true, data: chat });
   } catch (error) {
+    console.error('Get Session By ID Error:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch session' });
   }
 };
@@ -57,23 +63,19 @@ export const endSession = async (req: Request, res: Response) => {
   const userId = (req as any).user._id;
 
   try {
-    const session = await SessionModel.findOne({ _id: id, userId });
-    if (!session) {
+    const chat = await ChatModel.findOneAndUpdate(
+      { _id: id, userId },
+      { isActive: false },
+      { new: true }
+    );
+    
+    if (!chat) {
       return res.status(404).json({ success: false, error: 'Session not found' });
     }
 
-    const endedAt = new Date();
-    const duration = Math.round((endedAt.getTime() - session.startedAt.getTime()) / 1000);
-    const topic = await getTopicSummary(session.messages);
-
-    session.isActive = false;
-    session.endedAt = endedAt;
-    session.duration = duration;
-    session.topic = topic;
-
-    await session.save();
-    res.json({ success: true, data: session });
+    res.json({ success: true, data: chat });
   } catch (error) {
+    console.error('End Session Error:', error);
     res.status(500).json({ success: false, error: 'Failed to end session' });
   }
 };
