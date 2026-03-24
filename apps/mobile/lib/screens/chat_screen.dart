@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../models/chat_message.dart';
 import '../models/subject.dart';
-import '../services/app_config.dart';
-import '../services/gemini_service.dart';
-import '../services/mock_data.dart';
+import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/chat_bubble.dart';
 
 class ChatScreenArgs {
-  const ChatScreenArgs({required this.subject});
+  const ChatScreenArgs({
+    required this.subject,
+    this.sessionId,
+  });
 
   final Subject subject;
+  final String? sessionId;
 }
 
 class ChatScreen extends StatefulWidget {
@@ -26,17 +28,16 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  late final List<ChatMessage> messages;
   final controller = TextEditingController();
-  final geminiService = GeminiService();
+  final List<ChatMessage> messages = [];
   bool isLoading = false;
+  bool isBootstrapping = true;
   String? errorText;
 
   @override
   void initState() {
     super.initState();
-    messages =
-        MockDataService.starterConversation(widget.args.subject.name).toList();
+    _loadSession();
   }
 
   @override
@@ -56,10 +57,8 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Text(widget.args.subject.name),
             Text(
-              AppConfig.hasGeminiKey ? 'Gemini live' : 'Demo mode',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: AppConfig.hasGeminiKey ? null : Colors.orange,
-                  ),
+              'Backend session',
+              style: Theme.of(context).textTheme.labelMedium,
             ),
           ],
         ),
@@ -78,56 +77,59 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                itemCount: messages.length + (isLoading ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (isLoading && index == messages.length) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: palette.surfaceLow,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
+              child: isBootstrapping
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                      itemCount: messages.length + (isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (isLoading && index == messages.length) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Row(
-                              children: List.generate(
-                                3,
-                                (dotIndex) => Container(
-                                  width: 8,
-                                  height: 8,
-                                  margin: EdgeInsets.only(
-                                    right: dotIndex == 2 ? 0 : 6,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.35 + (dotIndex * 0.2),
+                                    color: palette.surfaceLow,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Row(
+                                    children: List.generate(
+                                      3,
+                                      (dotIndex) => Container(
+                                        width: 8,
+                                        height: 8,
+                                        margin: EdgeInsets.only(
+                                          right: dotIndex == 2 ? 0 : 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.35 + (dotIndex * 0.2),
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
                                     ),
-                                    shape: BoxShape.circle,
                                   ),
                                 ),
-                              ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Synthesizing thought...',
+                                  style:
+                                      Theme.of(context).textTheme.labelMedium,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Synthesizing thought...',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+                          );
+                        }
 
-                  return ChatBubble(message: messages[index]);
-                },
-              ),
+                        return ChatBubble(message: messages[index]);
+                      },
+                    ),
             ),
             if (errorText != null)
               Padding(
@@ -160,7 +162,9 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: isLoading ? null : _sendSimplifyRequest,
+                    onPressed: isLoading || isBootstrapping
+                        ? null
+                        : _sendSimplifyRequest,
                     icon: const Icon(Icons.lightbulb_rounded),
                   ),
                   Expanded(
@@ -168,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: controller,
                       minLines: 1,
                       maxLines: 4,
-                      enabled: !isLoading,
+                      enabled: !isLoading && !isBootstrapping,
                       decoration: const InputDecoration(
                         hintText: 'Share your thought...',
                       ),
@@ -184,7 +188,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                     child: IconButton(
-                      onPressed: isLoading ? null : _sendMessage,
+                      onPressed:
+                          isLoading || isBootstrapping ? null : _sendMessage,
                       icon: const Icon(
                         Icons.arrow_upward_rounded,
                         color: Colors.white,
@@ -200,10 +205,44 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  Future<void> _loadSession() async {
+    final sessionId = widget.args.sessionId;
+    if (sessionId == null || sessionId.isEmpty) {
+      setState(() {
+        errorText = 'No backend session found for this chat.';
+        isBootstrapping = false;
+      });
+      return;
+    }
+
+    try {
+      final session =
+          await BackendApiService.instance.getSessionById(sessionId);
+      if (!mounted) return;
+      setState(() {
+        messages
+          ..clear()
+          ..addAll(session.messages);
+        isBootstrapping = false;
+      });
+    } on BackendApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        errorText = error.message;
+        isBootstrapping = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        errorText = 'Failed to load chat history.';
+        isBootstrapping = false;
+      });
+    }
+  }
+
   Future<void> _sendMessage() async {
     final text = controller.text.trim();
     if (text.isEmpty) return;
-
     controller.clear();
     await _submitUserMessage(text);
   }
@@ -217,16 +256,19 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _sendRevealRequest() async {
     await _submitUserMessage(
       'I give up, please show me the full solution with reasoning.',
-      revealAnswer: true,
     );
   }
 
-  Future<void> _submitUserMessage(
-    String text, {
-    bool revealAnswer = false,
-  }) async {
-    final userMessage = ChatMessage(role: 'user', content: text);
+  Future<void> _submitUserMessage(String text) async {
+    final sessionId = widget.args.sessionId;
+    if (sessionId == null || sessionId.isEmpty) {
+      setState(() {
+        errorText = 'No backend session available.';
+      });
+      return;
+    }
 
+    final userMessage = ChatMessage(role: 'user', content: text);
     setState(() {
       messages.add(userMessage);
       isLoading = true;
@@ -234,20 +276,17 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      final reply = AppConfig.hasGeminiKey
-          ? await geminiService.sendMessage(
-              subject: widget.args.subject,
-              history: messages,
-              revealAnswer: revealAnswer,
-            )
-          : _demoReply(text, revealAnswer: revealAnswer);
+      final reply = await BackendApiService.instance.sendChatMessage(
+        sessionId: sessionId,
+        content: text,
+      );
 
       if (!mounted) return;
       setState(() {
         messages.add(ChatMessage(role: 'assistant', content: reply));
         isLoading = false;
       });
-    } on GeminiException catch (error) {
+    } on BackendApiException catch (error) {
       if (!mounted) return;
       setState(() {
         isLoading = false;
@@ -257,21 +296,8 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       setState(() {
         isLoading = false;
-        errorText =
-            'Something went wrong while contacting Gemini. Please try again.';
+        errorText = 'Something went wrong while sending the message.';
       });
     }
-  }
-
-  String _demoReply(String text, {required bool revealAnswer}) {
-    if (revealAnswer) {
-      return 'Let me walk you through the solution step by step. Start by identifying the core concept, then apply the relevant rule carefully to each part of the problem.';
-    }
-
-    if (text.toLowerCase().contains('simplify')) {
-      return 'Sure. Let us reduce it to the next smallest step: what is the one formula, definition, or principle that this problem depends on first?';
-    }
-
-    return 'Nice attempt. Before jumping ahead, which concept or formula are you choosing here, and why does it fit this situation?';
   }
 }

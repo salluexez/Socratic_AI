@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../models/subject.dart';
-import '../services/mock_data.dart';
+import '../services/app_config.dart';
+import '../services/backend_api_service.dart';
+import '../services/subject_catalog.dart';
 import '../theme/app_theme.dart';
 import '../widgets/subject_card.dart';
 import 'chat_screen.dart';
 
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
+
+  @override
+  State<LearnScreen> createState() => _LearnScreenState();
+}
+
+class _LearnScreenState extends State<LearnScreen> {
+  String? loadingSubject;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +72,7 @@ class LearnScreen extends StatelessWidget {
                 builder: (context, constraints) {
                   final isCompact = constraints.maxWidth < 360;
                   return GridView.builder(
-                    itemCount: MockDataService.subjects.length,
+                    itemCount: SubjectCatalog.subjects.length,
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -73,7 +82,7 @@ class LearnScreen extends StatelessWidget {
                       mainAxisExtent: isCompact ? 240 : 260,
                     ),
                     itemBuilder: (context, index) {
-                      final subject = MockDataService.subjects[index];
+                      final subject = SubjectCatalog.subjects[index];
                       return SubjectCard(
                         subject: subject,
                         onTap: () => _openChat(context, subject),
@@ -121,10 +130,45 @@ class LearnScreen extends StatelessWidget {
   }
 
   void _openChat(BuildContext context, Subject subject) {
-    Navigator.pushNamed(
-      context,
-      ChatScreen.routeName,
-      arguments: ChatScreenArgs(subject: subject),
-    );
+    _handleOpenChat(context, subject);
+  }
+
+  Future<void> _handleOpenChat(BuildContext context, Subject subject) async {
+    if (loadingSubject != null) return;
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() {
+      loadingSubject = subject.slug;
+    });
+
+    try {
+      String? sessionId;
+
+      if (AppConfig.hasApiBaseUrl &&
+          BackendApiService.instance.isAuthenticated) {
+        final session = await BackendApiService.instance.createSession(
+          subject: subject.slug,
+        );
+        sessionId = session.id;
+      }
+
+      if (!mounted) return;
+      navigator.pushNamed(
+        ChatScreen.routeName,
+        arguments: ChatScreenArgs(subject: subject, sessionId: sessionId),
+      );
+    } on BackendApiException catch (error) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          loadingSubject = null;
+        });
+      }
+    }
   }
 }

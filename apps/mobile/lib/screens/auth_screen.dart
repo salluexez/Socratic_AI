@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/app_config.dart';
+import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
 import 'home_shell.dart';
@@ -15,6 +17,20 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool isSignIn = true;
+  bool isLoading = false;
+  bool hidePassword = true;
+  String? errorText;
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +55,17 @@ class _AuthScreenState extends State<AuthScreen> {
                       color: palette.textMuted,
                     ),
               ),
+              const SizedBox(height: 10),
+              Text(
+                AppConfig.hasApiBaseUrl
+                    ? 'Connected to ${AppConfig.apiBaseUrl}'
+                    : 'Set --dart-define=API_BASE_URL=http://YOUR_SERVER:5000 or http://YOUR_SERVER:5000/api',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppConfig.hasApiBaseUrl
+                          ? palette.textMuted
+                          : Colors.orange,
+                    ),
+              ),
               const SizedBox(height: 28),
               _AuthToggle(
                 isSignIn: isSignIn,
@@ -46,28 +73,53 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 24),
               if (!isSignIn) ...[
-                const TextField(
-                    decoration: InputDecoration(labelText: 'Full name')),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Full name'),
+                ),
                 const SizedBox(height: 16),
               ],
-              const TextField(decoration: InputDecoration(labelText: 'Email')),
-              const SizedBox(height: 16),
-              const TextField(
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Password'),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
-              if (!isSignIn) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: hidePassword,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _submitAuth(),
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        hidePassword = !hidePassword;
+                      });
+                    },
+                    icon: Icon(
+                      hidePassword
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                    ),
+                  ),
+                ),
+              ),
+              if (errorText != null) ...[
                 const SizedBox(height: 16),
-                const TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: 'Confirm password'),
+                Text(
+                  errorText!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.red,
+                      ),
                 ),
               ],
               const SizedBox(height: 24),
               GradientButton(
                 label: isSignIn ? 'Sign In' : 'Create Account',
-                onPressed: () => Navigator.pushReplacementNamed(
-                    context, HomeShell.routeName),
+                onPressed: isLoading ? () {} : _submitAuth,
               ),
               const SizedBox(height: 12),
               Center(
@@ -85,6 +137,94 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _submitAuth() async {
+    setState(() {
+      errorText = null;
+    });
+
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    final name = nameController.text.trim();
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
+    if (!BackendApiService.instance.isConfigured) {
+      setState(() {
+        errorText =
+            'API base URL is missing. Run with --dart-define=API_BASE_URL=http://YOUR_SERVER:5000';
+      });
+      return;
+    }
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        errorText = 'Email and password are required.';
+      });
+      return;
+    }
+
+    if (!emailRegex.hasMatch(email)) {
+      setState(() {
+        errorText = 'Enter a valid email address.';
+      });
+      return;
+    }
+
+    if (!isSignIn) {
+      if (name.isEmpty) {
+        setState(() {
+          errorText = 'Full name is required.';
+        });
+        return;
+      }
+
+      if (password.length < 8) {
+        setState(() {
+          errorText = 'Password must be at least 8 characters.';
+        });
+        return;
+      }
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      if (isSignIn) {
+        await BackendApiService.instance.signin(
+          email: email,
+          password: password,
+        );
+      } else {
+        await BackendApiService.instance.signup(
+          name: name,
+          email: email,
+          password: password,
+        );
+      }
+
+      await BackendApiService.instance.getMe();
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, HomeShell.routeName);
+    } on BackendApiException catch (error) {
+      setState(() {
+        errorText = error.message;
+      });
+    } catch (_) {
+      setState(() {
+        errorText =
+            'Unable to complete authentication. Check API URL, backend server, and cookie auth setup.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 }
 
