@@ -4,9 +4,11 @@ import 'package:intl/intl.dart';
 
 import '../models/api_session.dart';
 import '../services/backend_api_service.dart';
+import '../services/subject_catalog.dart';
 import '../theme/app_theme.dart';
 import '../widgets/stat_card.dart';
 import 'all_sessions_screen.dart';
+import 'chat_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -338,117 +340,136 @@ class _ProgressScreenState extends State<ProgressScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          ...sessions.take(5).map((session) {
+                          ...sessions
+                              .where((s) => (s.attemptCount ?? 0) > 0)
+                              .take(5)
+                              .map((session) {
                             final date = session.startedAt ?? session.createdAt;
                             final dateStr = date != null
                                 ? DateFormat('MMM dd, yyyy')
                                     .format(date)
                                 : 'Recent';
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: palette.surfaceCard,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: palette.text.withOpacity(0.02),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                            return GestureDetector(
+                              onTap: () {
+                                final subject = SubjectCatalog.subjects.firstWhere(
+                                  (s) => s.slug == session.subject,
+                                  orElse: () => SubjectCatalog.subjects.first,
+                                );
+                                Navigator.pushNamed(
+                                  context,
+                                  ChatScreen.routeName,
+                                  arguments: ChatScreenArgs(
+                                    subject: subject,
+                                    sessionId: session.id,
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: palette.primaryDim
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(16),
+                                );
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: palette.surfaceCard,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: palette.text.withOpacity(0.02),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
-                                    child: Icon(
-                                      Icons.auto_awesome_rounded,
-                                      color: palette.primaryDim,
-                                      size: 24,
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: palette.primaryDim
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Icon(
+                                        Icons.auto_awesome_rounded,
+                                        color: palette.primaryDim,
+                                        size: 24,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: palette.surfaceLow,
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: palette.surfaceLow,
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  session.subject.toUpperCase(),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color: palette.primaryDim,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 9,
+                                                      ),
+                                                ),
                                               ),
-                                              child: Text(
-                                                session.subject.toUpperCase(),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                dateStr,
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .labelSmall
+                                                    .bodySmall
                                                     ?.copyWith(
-                                                      color: palette.primaryDim,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 9,
+                                                      color: palette.textMuted,
+                                                      fontSize: 11,
                                                     ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              dateStr,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.copyWith(
-                                                    color: palette.textMuted,
-                                                    fontSize: 11,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          session.displayTitle,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w800,
-                                                fontSize: 16,
-                                                letterSpacing: -0.3,
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${session.attemptCount ?? 0} Socratic Rounds',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: palette.textMuted,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                        ),
-                                      ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            session.displayTitle,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 16,
+                                                  letterSpacing: -0.3,
+                                                ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${session.attemptCount ?? 0} Socratic Rounds',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: palette.textMuted,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    color: palette.textMuted,
-                                    size: 16,
-                                  ),
-                                ],
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: palette.textMuted,
+                                      size: 16,
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }),

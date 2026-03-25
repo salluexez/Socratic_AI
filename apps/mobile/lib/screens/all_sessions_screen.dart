@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../theme/theme_controller.dart';
 import '../models/api_session.dart';
@@ -165,7 +166,28 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     return Scaffold(
       backgroundColor: palette.surfaceLow,
       appBar: AppBar(
-        title: const Text('Study Sessions'),
+        title: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Your ',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                  color: palette.textMuted,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              TextSpan(
+                text: 'Sessions',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      fontSize: 24,
+                      height: 1.0,
+                    ),
+              ),
+            ],
+          ),
+        ),
         backgroundColor: palette.surfaceLow,
         elevation: 0,
         actions: [

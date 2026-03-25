@@ -171,12 +171,12 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             color: context.palette.surfaceCard,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? context.palette.outline : context.palette.outline.withOpacity(0.5),
+              color: context.isDark ? context.palette.outline : context.palette.outline.withOpacity(0.5),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: isDark 
+                color: context.isDark 
                     ? Colors.black.withOpacity(0.3) 
                     : context.palette.text.withOpacity(0.06),
                 blurRadius: 16,

@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     final palette = context.palette;
 
     return Scaffold(
-      backgroundColor: palette.heroBackground, // Using a deep color for splash
+      backgroundColor: palette.heroBackground,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

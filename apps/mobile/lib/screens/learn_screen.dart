@@ -46,13 +46,26 @@ class _LearnScreenState extends State<LearnScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            Text(
-              'Where shall your curiosity lead today?',
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    color: palette.text,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Explore your ',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                      color: palette.textMuted,
+                      letterSpacing: -0.5,
+                    ),
                   ),
+                  TextSpan(
+                    text: 'Curiosity',
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                          height: 1.0,
+                        ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             Text(
