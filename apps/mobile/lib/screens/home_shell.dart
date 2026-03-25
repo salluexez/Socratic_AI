@@ -95,13 +95,13 @@ class _HomeShellState extends State<HomeShell> {
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           decoration: BoxDecoration(
             color: isDark 
-              ? palette.surfaceCard.withValues(alpha: 0.8) 
-              : palette.surfaceCard.withValues(alpha: 0.95),
+              ? palette.surfaceCard.withOpacity(0.8) 
+              : palette.surfaceCard.withOpacity(0.95),
             borderRadius: BorderRadius.circular(32),
             border: isDark ? Border.all(color: palette.outline, width: 1) : null,
             boxShadow: [
               BoxShadow(
-                color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.1),
+                color: isDark ? Colors.black.withOpacity(0.2) : palette.text.withOpacity(0.1),
                 blurRadius: 24,
                 offset: const Offset(0, 8),
               ),
@@ -111,7 +111,7 @@ class _HomeShellState extends State<HomeShell> {
             borderRadius: BorderRadius.circular(32),
             child: isDark 
               ? BackdropFilter(
-                  filter: ColorFilter.mode(palette.surfaceCard.withValues(alpha: 0.1), BlendMode.overlay),
+                  filter: ColorFilter.mode(palette.surfaceCard.withOpacity(0.1), BlendMode.overlay),
                   child: _buildNavBar(palette),
                 )
               : _buildNavBar(palette),

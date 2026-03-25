@@ -165,6 +165,106 @@ class AppPalette extends ThemeExtension<AppPalette> {
     inputBar: Color(0xED020617),
   );
 
+  static const nordicNight = AppPalette(
+    surfaceLow: Color(0xFF2E3440),
+    surfaceCard: Color(0xFF3B4252),
+    surfaceElevated: Color(0xFF434C5E),
+    primaryDim: Color(0xFF88C0D0),
+    primaryContainer: Color(0xFF4C566A),
+    secondaryContainer: Color(0xFF81A1C1),
+    tertiaryContainer: Color(0xFF5E81AC),
+    text: Color(0xFFECEFF4),
+    textMuted: Color(0xFFD8DEE9),
+    outline: Color(0xFF4C566A),
+    success: Color(0xFFA3BE8C),
+    heroBackground: Color(0xFF2E3440),
+    primaryGradient: LinearGradient(colors: [Color(0xFF88C0D0), Color(0xFF81A1C1)]),
+    chipBackground: Color(0xFF434C5E),
+    orbTop: Color(0x2288C0D0),
+    orbBottom: Color(0x2281A1C1),
+    inputBar: Color(0xFF3B4252),
+  );
+
+  static const emeraldVelvet = AppPalette(
+    surfaceLow: Color(0xFF06140E),
+    surfaceCard: Color(0xFF0B2118),
+    surfaceElevated: Color(0xFF112D21),
+    primaryDim: Color(0xFF10B981),
+    primaryContainer: Color(0xFF064E3B),
+    secondaryContainer: Color(0xFF34D399),
+    tertiaryContainer: Color(0xFF059669),
+    text: Color(0xFFECFDF5),
+    textMuted: Color(0xFF6EE7B7),
+    outline: Color(0xFF064E3B),
+    success: Color(0xFF34D399),
+    heroBackground: Color(0xFF06140E),
+    primaryGradient: LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]),
+    chipBackground: Color(0xFF0B2118),
+    orbTop: Color(0x2210B981),
+    orbBottom: Color(0x2234D399),
+    inputBar: Color(0xFF0B2118),
+  );
+
+  static const midnightGold = AppPalette(
+    surfaceLow: Color(0xFF121212),
+    surfaceCard: Color(0xFF1E1E1E),
+    surfaceElevated: Color(0xFF262626),
+    primaryDim: Color(0xFFD4AF37),
+    primaryContainer: Color(0xFF2A2A2A),
+    secondaryContainer: Color(0xFFC5A028),
+    tertiaryContainer: Color(0xFFB8860B),
+    text: Color(0xFFF5F5F5),
+    textMuted: Color(0xFFA0A0A0),
+    outline: Color(0xFF333333),
+    success: Color(0xFF90EE90),
+    heroBackground: Color(0xFF121212),
+    primaryGradient: LinearGradient(colors: [Color(0xFFD4AF37), Color(0xFFC5A028)]),
+    chipBackground: Color(0xFF1E1E1E),
+    orbTop: Color(0x22D4AF37),
+    orbBottom: Color(0x22C5A028),
+    inputBar: Color(0xFF1E1E1E),
+  );
+
+  static const royalPlum = AppPalette(
+    surfaceLow: Color(0xFF140C1F),
+    surfaceCard: Color(0xFF1D1429),
+    surfaceElevated: Color(0xFF261D33),
+    primaryDim: Color(0xFFA855F7),
+    primaryContainer: Color(0xFF2E1065),
+    secondaryContainer: Color(0xFFD8B4FE),
+    tertiaryContainer: Color(0xFF9333EA),
+    text: Color(0xFFF5F3FF),
+    textMuted: Color(0xFFC4B5FD),
+    outline: Color(0xFF2E1065),
+    success: Color(0xFF10B981),
+    heroBackground: Color(0xFF140C1F),
+    primaryGradient: LinearGradient(colors: [Color(0xFFA855F7), Color(0xFFD8B4FE)]),
+    chipBackground: Color(0xFF1D1429),
+    orbTop: Color(0x22A855F7),
+    orbBottom: Color(0x22D8B4FE),
+    inputBar: Color(0xFF1D1429),
+  );
+
+  static const softClay = AppPalette(
+    surfaceLow: Color(0xFFF9F6F2),
+    surfaceCard: Color(0xFFFFFFFF),
+    surfaceElevated: Color(0xFFFDFBFA),
+    primaryDim: Color(0xFFE07A5F),
+    primaryContainer: Color(0xFFF2CC8F),
+    secondaryContainer: Color(0xFF81B29A),
+    tertiaryContainer: Color(0xFF3D405B),
+    text: Color(0xFF3D405B),
+    textMuted: Color(0xFF8D8D8D),
+    outline: Color(0xFFEAE2D6),
+    success: Color(0xFF81B29A),
+    heroBackground: Color(0xFFF4F1DE),
+    primaryGradient: LinearGradient(colors: [Color(0xFFE07A5F), Color(0xFFF2CC8F)]),
+    chipBackground: Color(0x33F2CC8F),
+    orbTop: Color(0x22E07A5F),
+    orbBottom: Color(0x22F2CC8F),
+    inputBar: Color(0xFFFFFFFF),
+  );
+
   @override
   AppPalette copyWith({
     Color? surfaceLow,
@@ -248,11 +348,16 @@ class AppTheme {
     static List<ThemeData> get themes => [
         _theme(brightness: Brightness.light, scaffold: AppPalette.modernInk.surfaceLow, palette: AppPalette.modernInk),
         _theme(brightness: Brightness.light, scaffold: AppPalette.milkshake.surfaceLow, palette: AppPalette.milkshake),
+        _theme(brightness: Brightness.light, scaffold: AppPalette.softClay.surfaceLow, palette: AppPalette.softClay),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.carbon.surfaceLow, palette: AppPalette.carbon),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.monkey8008.surfaceLow, palette: AppPalette.monkey8008),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.dracula.surfaceLow, palette: AppPalette.dracula),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.deepSpace.surfaceLow, palette: AppPalette.deepSpace),
-      ];
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.nordicNight.surfaceLow, palette: AppPalette.nordicNight),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.emeraldVelvet.surfaceLow, palette: AppPalette.emeraldVelvet),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.midnightGold.surfaceLow, palette: AppPalette.midnightGold),
+        _theme(brightness: Brightness.dark, scaffold: AppPalette.royalPlum.surfaceLow, palette: AppPalette.royalPlum),
+    ];
 
   static ThemeData get lightTheme => themes[0];
   static ThemeData get darkTheme => themes[5];
@@ -321,7 +426,7 @@ class AppTheme {
       textTheme: textTheme,
       extensions: [palette],
       appBarTheme: AppBarTheme(
-        backgroundColor: scaffold.withValues(alpha: 0.92),
+        backgroundColor: scaffold.withOpacity(0.92),
         foregroundColor: palette.text,
         elevation: 0,
         centerTitle: false,
@@ -331,7 +436,7 @@ class AppTheme {
         color: palette.surfaceCard,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shadowColor: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+        shadowColor: isDark ? Colors.black.withOpacity(0.2) : palette.text.withOpacity(0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: isDark ? BorderSide(color: palette.outline, width: 1) : BorderSide.none,
@@ -339,7 +444,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: palette.surfaceCard,
-        indicatorColor: palette.primaryDim.withValues(alpha: 0.1),
+        indicatorColor: palette.primaryDim.withOpacity(0.1),
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -358,7 +463,7 @@ class AppTheme {
           backgroundColor: isDark ? palette.primaryDim : palette.primaryContainer,
           foregroundColor: isDark ? Colors.white : palette.text,
           elevation: isDark ? 8 : 0,
-          shadowColor: isDark ? palette.primaryDim.withValues(alpha: 0.4) : null,
+          shadowColor: isDark ? palette.primaryDim.withOpacity(0.4) : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -371,20 +476,19 @@ class AppTheme {
         hintStyle: TextStyle(color: palette.textMuted),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        prefixIconColor: palette.primaryDim,
+        suffixIconColor: palette.textMuted,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(color: palette.outline, width: 1),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(color: palette.outline, width: 1),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(28),
-          borderSide: BorderSide(
-            color: palette.primaryDim,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: palette.primaryDim, width: 2),
         ),
       ),
     );

@@ -8,7 +8,7 @@ class ThemeController extends ValueNotifier<int> {
   static const String _themeKey = 'theme_index';
 
   Future<void> next() async {
-    final nextIndex = (value + 1) % 6; // 6 total themes
+    final nextIndex = (value + 1) % 10; // 10 total themes
     value = nextIndex;
     
     try {

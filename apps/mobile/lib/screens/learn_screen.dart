@@ -104,7 +104,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 border: isDark ? Border.all(color: palette.outline, width: 1) : null,
                 boxShadow: [
                   BoxShadow(
-                    color: isDark ? Colors.black.withValues(alpha: 0.15) : palette.text.withValues(alpha: 0.05),
+                    color: isDark ? Colors.black.withOpacity(0.15) : palette.text.withOpacity(0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

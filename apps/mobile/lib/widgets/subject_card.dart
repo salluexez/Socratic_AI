@@ -31,8 +31,8 @@ class SubjectCard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isDark 
-                    ? Colors.black.withValues(alpha: 0.2) 
-                    : palette.text.withValues(alpha: 0.04),
+                    ? Colors.black.withOpacity(0.2) 
+                    : palette.text.withOpacity(0.04),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -48,7 +48,7 @@ class SubjectCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: subject.accent.withValues(alpha: 0.08),
+                      color: subject.accent.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(subject.icon, color: subject.accent, size: 22),
@@ -57,7 +57,7 @@ class SubjectCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: subject.accent.withValues(alpha: 0.08),
+                        color: subject.accent.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -96,7 +96,7 @@ class SubjectCard extends StatelessWidget {
                    Container(
                      padding: const EdgeInsets.all(6),
                      decoration: BoxDecoration(
-                       color: subject.accent.withValues(alpha: 0.1),
+                       color: subject.accent.withOpacity(0.1),
                        shape: BoxShape.circle,
                      ),
                      child: Icon(

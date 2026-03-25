@@ -149,7 +149,7 @@ class _VoiceInputSuffixState extends State<VoiceInputSuffix> with SingleTickerPr
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: palette.primaryDim.withValues(alpha: 0.1 + (0.2 * _animationController.value)),
+                  color: palette.primaryDim.withOpacity(0.1 + (0.2 * _animationController.value)),
                 ),
               ),
             if (_isListening)
@@ -159,7 +159,7 @@ class _VoiceInputSuffixState extends State<VoiceInputSuffix> with SingleTickerPr
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: palette.primaryDim.withValues(alpha: 0.5 * (1.0 - _animationController.value)),
+                    color: palette.primaryDim.withOpacity(0.5 * (1.0 - _animationController.value)),
                     width: 2,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _VoiceInputSuffixState extends State<VoiceInputSuffix> with SingleTickerPr
                 _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
                 color: _isListening 
                   ? palette.primaryDim
-                  : (_speechEnabled ? palette.textMuted : palette.textMuted.withValues(alpha: 0.3)),
+                  : (_speechEnabled ? palette.textMuted : palette.textMuted.withOpacity(0.3)),
               ),
               onPressed: () {
                 if (!_speechEnabled) {

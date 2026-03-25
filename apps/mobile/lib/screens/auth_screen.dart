@@ -392,7 +392,7 @@ class _ToggleButton extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           style: Theme.of(context).textTheme.labelLarge!.copyWith(
                 color: isActive 
-                  ? (isDark ? Colors.white : palette.primaryDim) 
+                  ? palette.primaryDim 
                   : palette.textMuted,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),

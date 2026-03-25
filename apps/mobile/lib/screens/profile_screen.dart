@@ -119,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: palette.primaryDim.withValues(alpha: 0.3),
+                                  color: palette.primaryDim.withOpacity(0.3),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                 ),
@@ -173,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+                            color: isDark ? Colors.black.withOpacity(0.2) : palette.text.withOpacity(0.05),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -358,7 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: palette.primaryDim.withValues(alpha: 0.1),
+                    color: palette.primaryDim.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.shield_rounded, color: palette.primaryDim, size: 28),
@@ -393,7 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               description: 'The Socratic-Ai ecosystem uses professional-grade security for all API communications.',
             ),
             const SizedBox(height: 32),
-            Divider(color: palette.text.withValues(alpha: 0.05)),
+            Divider(color: palette.text.withOpacity(0.05)),
             const SizedBox(height: 24),
             Text(
               'Account Management',
@@ -539,7 +539,7 @@ class _StatDivider extends StatelessWidget {
     return Container(
       width: 1.5,
       height: 40,
-      color: palette.text.withValues(alpha: 0.05),
+      color: palette.text.withOpacity(0.05),
     );
   }
 }
@@ -596,7 +596,7 @@ class _ActionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
+              color: isDark ? Colors.black.withOpacity(0.2) : palette.text.withOpacity(0.05),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -607,7 +607,7 @@ class _ActionTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (color ?? palette.primaryDim).withValues(alpha: 0.1),
+                color: (color ?? palette.primaryDim).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(icon, color: color ?? palette.primaryDim, size: 20),
@@ -635,7 +635,7 @@ class _ActionTile extends StatelessWidget {
               ),
             ),
             Icon(Icons.arrow_forward_ios_rounded, 
-              color: palette.text.withValues(alpha: 0.1), size: 16),
+              color: palette.text.withOpacity(0.1), size: 16),
           ],
         ),
       ),
