@@ -6,6 +6,8 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+
+  
   final initialThemeIndex = await ThemeController.getSavedTheme();
   final initialCourses = await CourseController.getSavedCourses();
   

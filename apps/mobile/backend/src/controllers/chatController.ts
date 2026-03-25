@@ -48,6 +48,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     };
     chat.messages.push(aiMessage);
     
+    /* 
     // Auto-name the session if it's the first message
     if (chat.messages.length <= 2 && (!chat.topic || chat.topic.startsWith('Exploration of'))) {
       if (socraticResult.isIrrelevant) {
@@ -56,6 +57,7 @@ export const sendMessage = async (req: Request, res: Response) => {
         chat.topic = await generateTopic(content);
       }
     }
+    */
     
     await chat.save();
 

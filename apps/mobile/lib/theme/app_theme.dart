@@ -44,7 +44,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   static const milkshake = AppPalette(
     surfaceLow: Color(0xFFF1F4F6),
     surfaceCard: Color(0xFFFFFFFF),
-    primaryDim: Color(0xFF3C3CCF),
+    primaryDim: Color(0xFFF44C7F),
     primaryContainer: Color(0xFFBABBFF),
     secondaryContainer: Color(0xFF68FAFF),
     tertiaryContainer: Color(0xFFC0ADFF),
@@ -53,7 +53,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     outline: Color(0xFFE2E8F0),
     success: Color(0xFF1D8F61),
     heroBackground: Color(0xFFEFF2FF),
-    primaryGradient: LinearGradient(colors: [Color(0xFF3C3CCF), Color(0xFF68FAFF)]),
+    primaryGradient: LinearGradient(colors: [Color(0xFFF44C7F), Color(0xFF68FAFF)]),
     chipBackground: Color(0xFFE9ECFF),
     orbTop: Color(0x3357EBF0),
     orbBottom: Color(0x33C0ADFF),

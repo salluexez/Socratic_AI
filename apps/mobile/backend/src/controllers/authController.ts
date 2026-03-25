@@ -69,3 +69,19 @@ export const logout = (req: Request, res: Response) => {
 export const getMe = (req: Request, res: Response) => {
   res.json({ success: true, data: (req as any).user });
 };
+export const updateMe = async (req: Request, res: Response) => {
+  const { name } = req.body;
+  const user = (req as any).user;
+
+  try {
+    user.name = name || user.name;
+    await user.save();
+
+    res.json({
+      success: true,
+      data: { id: user._id, name: user.name, email: user.email },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error during profile update' });
+  }
+};

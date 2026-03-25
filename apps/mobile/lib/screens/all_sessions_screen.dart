@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/theme_controller.dart';
@@ -20,18 +21,37 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   List<ApiSession> _sessions = [];
   bool _isLoading = true;
   String? _error;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
-    _fetchSessions();
+    _fetchSessions(showLoading: true);
+    _startPolling();
   }
 
-  Future<void> _fetchSessions() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
+  void _startPolling() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (mounted) {
+        _fetchSessions(showLoading: false);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchSessions({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
 
     try {
       final sessions = await BackendApiService.instance.getSessions();
@@ -42,10 +62,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _error = 'Failed to load sessions: $e';
-        _isLoading = false;
-      });
+      if (showLoading) {
+        setState(() {
+          _error = 'Failed to load sessions: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -149,7 +171,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: _fetchSessions,
+            onPressed: () => _fetchSessions(showLoading: true),
           ),
         ],
       ),
@@ -163,7 +185,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                       Text(_error!, style: TextStyle(color: Colors.red)),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: _fetchSessions,
+                        onPressed: () => _fetchSessions(showLoading: true),
                         child: const Text('Retry'),
                       ),
                     ],

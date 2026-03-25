@@ -45,49 +45,57 @@ class StatCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(24),
           child: Padding(
-            padding: EdgeInsets.all(compact ? 20 : 24),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 22,
+                    size: 20,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  value,
-                  style: GoogleFonts.inter(
-                    fontSize: compact ? 24 : 32,
-                    fontWeight: FontWeight.w700,
-                    color: palette.text,
-                    letterSpacing: -1.0,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    color: palette.text,
+                const Flexible(child: SizedBox(height: 12)),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    value,
+                    style: GoogleFonts.inter(
+                      fontSize: compact ? 22 : 30,
+                      fontWeight: FontWeight.w700,
+                      color: palette.text,
+                      letterSpacing: -1.0,
+                    ),
+                    maxLines: 1,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    color: palette.text,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 1),
+                Text(
                   subtitle,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        fontSize: 11,
+                        fontSize: 10,
                         color: palette.textMuted,
                         fontWeight: FontWeight.w500,
                       ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

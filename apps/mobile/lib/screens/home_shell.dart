@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'learn_screen.dart';
 import 'profile_screen.dart';
 import 'progress_screen.dart';
+import 'shared_screen.dart';
 import '../theme/theme_controller.dart';
 import '../theme/app_theme.dart';
 import '../services/app_config.dart';
@@ -23,6 +24,7 @@ class _HomeShellState extends State<HomeShell> {
   final screens = const [
     LearnScreen(),
     ProgressScreen(),
+    SharedScreen(), // New tab
     ProfileScreen(),
   ];
 
@@ -35,41 +37,44 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/logo.jpg',
-                width: 32,
-                height: 32,
-                fit: BoxFit.cover,
+        title: GestureDetector(
+          onTap: () => setState(() => currentIndex = 0),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/logo.jpg',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Socratic ',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 22,
-                      letterSpacing: -0.8,
+              const SizedBox(width: 12),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Socratic ',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                        letterSpacing: -0.8,
+                      ),
                     ),
-                  ),
-                  TextSpan(
-                    text: 'AI',
-                    style: GoogleFonts.inter(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w300,
-                      letterSpacing: -0.5,
+                    TextSpan(
+                      text: 'AI',
+                      style: GoogleFonts.inter(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w300,
+                        letterSpacing: -0.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -78,7 +83,7 @@ class _HomeShellState extends State<HomeShell> {
             tooltip: 'Switch Theme',
           ),
           GestureDetector(
-            onTap: () => setState(() => currentIndex = 2),
+            onTap: () => setState(() => currentIndex = 3),
             child: Padding(
               padding: const EdgeInsets.only(right: 16, left: 8),
               child: CircleAvatar(
@@ -127,29 +132,6 @@ class _HomeShellState extends State<HomeShell> {
           ),
         ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: isDark ? [
-            BoxShadow(
-              color: palette.primaryDim.withValues(alpha: 0.4),
-              blurRadius: 16,
-              spreadRadius: 2,
-            ),
-          ] : [],
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            // Future: Start new session
-          },
-          backgroundColor: palette.primaryDim,
-          foregroundColor: Colors.white,
-          shape: const CircleBorder(),
-          elevation: isDark ? 0 : 10,
-          child: const Icon(Icons.bolt_rounded, size: 32),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -171,6 +153,11 @@ class _HomeShellState extends State<HomeShell> {
           icon: Icon(Icons.insights_rounded),
           selectedIcon: Icon(Icons.insights_rounded),
           label: 'Progress',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.people_outline_rounded),
+          selectedIcon: Icon(Icons.people_rounded),
+          label: 'Shared',
         ),
         NavigationDestination(
           icon: Icon(Icons.person_outline_rounded),

@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "434260649356",
+    "project_id": "alumni-connect-2026",
+    "storage_bucket": "alumni-connect-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434260649356:android:cfdd19fac37190302422a9",
+        "android_client_info": {
+          "package_name": "com.alumniconnect.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "434260649356-9g17pdtpm8vcfm54q2qjnau8ftisc57r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3XTbRmmVhvx6VZGc-gXNtGU-DMZDjtss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "434260649356-9g17pdtpm8vcfm54q2qjnau8ftisc57r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "434260649356-1cbvgkmtv1nsu7kb872sh6ake7sf18l7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alumniconnect.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434260649356:android:2271e1311c8224cb2422a9",
+        "android_client_info": {
+          "package_name": "com.hiet.socratic_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "434260649356-9g17pdtpm8vcfm54q2qjnau8ftisc57r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3XTbRmmVhvx6VZGc-gXNtGU-DMZDjtss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "434260649356-9g17pdtpm8vcfm54q2qjnau8ftisc57r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "434260649356-1cbvgkmtv1nsu7kb872sh6ake7sf18l7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alumniconnect.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

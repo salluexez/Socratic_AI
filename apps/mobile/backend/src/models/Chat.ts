@@ -13,7 +13,8 @@ export interface IChatDocument extends Document {
   messages: IMessage[];
   isActive: boolean;
   attemptCount: number;
-  duration?: number;
+  duration: number;
+  collaborators: { userId: mongoose.Types.ObjectId; access: 'read' | 'write' }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,12 @@ const chatSchema = new Schema<IChatDocument>(
     isActive: { type: Boolean, default: true },
     attemptCount: { type: Number, default: 0 },
     duration: { type: Number, default: 0 },
+    collaborators: [
+      {
+        userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        access: { type: String, enum: ['read', 'write'], default: 'read' },
+      },
+    ],
   },
   { timestamps: true }
 );

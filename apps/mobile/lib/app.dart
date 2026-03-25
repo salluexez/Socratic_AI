@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'screens/splash_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/home_shell.dart';
@@ -57,8 +58,9 @@ class _SocraticAiAppState extends State<SocraticAiApp> {
               title: AppConfig.appName,
               theme: AppTheme.themes[themeIndex],
               themeMode: ThemeMode.light, // We use manual theme selection
-              initialRoute: OnboardingScreen.routeName,
+              initialRoute: SplashScreen.routeName,
               routes: {
+                SplashScreen.routeName: (_) => const SplashScreen(),
                 OnboardingScreen.routeName: (_) => const OnboardingScreen(),
                 AuthScreen.routeName: (_) => const AuthScreen(),
                 HomeShell.routeName: (_) => const HomeShell(),

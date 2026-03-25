@@ -46,6 +46,29 @@ class BackendApiService {
     };
   }
 
+  Future<void> unshareSession(String sessionId) async {
+    final response = await _client.delete(
+      _uri('/sessions/$sessionId/share'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    notifyDataChanged();
+  }
+
+  Future<ApiSession> removeCollaborator(String sessionId, String collaboratorId) async {
+    final response = await _client.delete(
+      _uri('/sessions/$sessionId/collaborators/$collaboratorId'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    final session = ApiSession.fromJson(
+        _parseBody(response)['data'] as Map<String, dynamic>);
+    notifyDataChanged();
+    return session;
+  }
+
   void _captureCookie(http.Response response) {
     final rawCookie = response.headers['set-cookie'];
     if (rawCookie == null || rawCookie.isEmpty) return;
@@ -118,6 +141,20 @@ class BackendApiService {
     final user =
         ApiUser.fromJson(_parseBody(response)['data'] as Map<String, dynamic>);
     currentUser = user;
+    return user;
+  }
+  Future<ApiUser> updateMe({required String name}) async {
+    final response = await _client.patch(
+      _uri('/auth/me'),
+      headers: _headers(),
+      body: jsonEncode({'name': name}),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    final user =
+        ApiUser.fromJson(_parseBody(response)['data'] as Map<String, dynamic>);
+    currentUser = user;
+    notifyDataChanged();
     return user;
   }
 
@@ -221,6 +258,45 @@ class BackendApiService {
     if (response.statusCode != 200) _throwApiError(response);
     notifyDataChanged();
   }
+
+  Future<void> shareSession(String sessionId, String email) async {
+    final response = await _client.post(
+      _uri('/sessions/$sessionId/share'),
+      headers: _headers(),
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    notifyDataChanged();
+  }
+
+  Future<List<ApiSession>> getSharedToMe() async {
+    final response = await _client.get(
+      _uri('/sessions/shared/to-me'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    final data = (_parseBody(response)['data'] as List<dynamic>? ?? const []);
+    return data
+        .map((item) => ApiSession.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<ApiSession>> getSharedByMe() async {
+    final response = await _client.get(
+      _uri('/sessions/shared/by-me'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    final data = (_parseBody(response)['data'] as List<dynamic>? ?? const []);
+    return data
+        .map((item) => ApiSession.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  // --- End of Service ---
 }
 
 class BackendApiException implements Exception {

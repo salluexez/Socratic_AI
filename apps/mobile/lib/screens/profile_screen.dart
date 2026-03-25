@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -44,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Derived stats
     final totalSeconds = sessions.fold<int>(
       0,
-      (sum, session) => sum + (session.duration ?? 0),
+      (sum, session) => sum + (session.duration ?? 0).toInt(),
     );
     final totalHours = (totalSeconds / 3600).toStringAsFixed(1);
     
@@ -100,64 +101,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 40),
 
                     // Hero Avatar Section
-                    Column(
-                      children: [
-                        Stack(
-                          alignment: Alignment.bottomRight,
-                          children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [palette.primaryDim, palette.secondaryContainer],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                    GestureDetector(
+                      onTap: _showEditProfileDialog,
+                      behavior: HitTestBehavior.opaque,
+                      child: Column(
+                        children: [
+                          Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [palette.primaryDim, palette.secondaryContainer],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: palette.primaryDim.withValues(alpha: 0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                              ],
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: palette.primaryDim.withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                spreadRadius: 2,
+                            child: CircleAvatar(
+                              radius: 56,
+                              backgroundColor: palette.surfaceCard,
+                              child: Icon(Icons.person_rounded, 
+                                size: 60, color: palette.primaryDim),
+                            ),
+                          ),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: palette.primaryDim,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: palette.surfaceLow, width: 3),
+                                ),
+                                child: Icon(Icons.edit_rounded, 
+                                  color: Colors.white, size: 16),
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
-                            radius: 56,
-                            backgroundColor: palette.surfaceCard,
-                            child: Icon(Icons.person_rounded, 
-                              size: 60, color: palette.primaryDim),
-                          ),
-                        ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: palette.primaryDim,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: palette.surfaceLow, width: 3),
-                              ),
-                              child: Icon(Icons.edit_rounded, 
-                                color: Colors.white, size: 16),
+                          const SizedBox(height: 20),
+                          Text(
+                            displayUser.name,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          displayUser.name,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          displayUser.email,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(height: 4),
+                          Text(
+                            displayUser.email,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: palette.textMuted,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 40),
 
@@ -207,11 +212,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _SectionHeader(title: 'Account Settings'),
                     const SizedBox(height: 12),
                     _ActionTile(
-                      icon: Icons.notifications_none_rounded,
-                      title: 'Notifications',
-                      subtitle: 'Alerts for learning goals',
-                      onTap: () {},
+                      icon: Icons.person_outline_rounded,
+                      title: 'Edit Profile',
+                      subtitle: 'Update your display name',
+                      onTap: _showEditProfileDialog,
                     ),
+                    const SizedBox(height: 12),
+
                     const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.shield_outlined,
@@ -232,13 +239,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         Navigator.pushNamed(context, ExploreCoursesScreen.routeName);
                       },
-                    ),
-                    const SizedBox(height: 12),
-                    _ActionTile(
-                      icon: Icons.support_agent_rounded,
-                      title: 'Support Center',
-                      subtitle: 'Get help with ${AppConfig.appName}',
-                      onTap: () {},
                     ),
                     const SizedBox(height: 12),
                     _ActionTile(
@@ -263,6 +263,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
     );
+  }
+
+  Future<void> _showEditProfileDialog() async {
+    if (user == null) return;
+    
+    final nameController = TextEditingController(text: user!.name);
+    final palette = context.palette;
+    
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: palette.surfaceCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text('Edit Name', style: GoogleFonts.inter(fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Your name will be visible across the platform.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: palette.textMuted),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                labelText: 'Full Name',
+                prefixIcon: const Icon(Icons.person_outline_rounded),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: palette.textMuted, fontWeight: FontWeight.w600)),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context, nameController.text.trim()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: palette.primaryDim,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              child: const Text('Save Changes', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (newName != null && newName.isNotEmpty && newName != user?.name) {
+      try {
+        setState(() => isLoading = true);
+        await BackendApiService.instance.updateMe(name: newName);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully')),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: $e')),
+        );
+      } finally {
+        if (mounted) setState(() => isLoading = false);
+      }
+    }
   }
 
   Future<void> _loadProfile() async {

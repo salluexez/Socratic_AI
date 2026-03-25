@@ -39,7 +39,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final totalSeconds = sessions.fold<int>(
       0,
-      (sum, session) => sum + (session.duration ?? 0),
+      (sum, session) => sum + (session.duration ?? 0).toInt(),
     );
     final totalHoursNum = totalSeconds / 3600;
     final totalHours = totalHoursNum.toStringAsFixed(1);
@@ -151,7 +151,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
-                          childAspectRatio: 1.0,
+                          childAspectRatio: 0.9,
                           children: [
                             StatCard(
                               title: 'Hours Spent',
@@ -180,7 +180,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                             StatCard(
                               title: 'Rounds',
                               value:
-                                  '${sessions.fold<int>(0, (sum, s) => sum + s.attemptCount)}',
+                                  '${sessions.fold<int>(0, (sum, s) => sum + (s.attemptCount ?? 0).toInt())}',
                               subtitle: 'AI interactions',
                               color: const Color(0xFF6200EA),
                               icon: Icons.forum_rounded,
@@ -342,9 +342,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           ),
                           const SizedBox(height: 20),
                           ...sessions.take(5).map((session) {
-                            final dateStr = session.startedAt != null
-                                ? DateFormat('MMM d, h:mm a')
-                                    .format(session.startedAt!)
+                            final date = session.startedAt ?? session.createdAt;
+                            final dateStr = date != null
+                                ? DateFormat('MMM dd, yyyy')
+                                    .format(date)
                                 : 'Recent';
 
                             return Container(
@@ -433,7 +434,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          '${session.attemptCount} Socratic Rounds',
+                                          '${session.attemptCount ?? 0} Socratic Rounds',
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
@@ -502,7 +503,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
       final date = session.startedAt ?? session.createdAt;
       if (date == null) continue;
       final weekdayIndex = (date.weekday - 1).clamp(0, 6);
-      hourCounts[weekdayIndex] += (session.duration ?? 0) / 3600;
+      final duration = session.duration ?? 0;
+      hourCounts[weekdayIndex] += duration / 3600;
     }
 
     return List.generate(

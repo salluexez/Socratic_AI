@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/theme_controller.dart';
 import '../models/api_session.dart';
 import '../models/chat_message.dart';
 import '../models/subject.dart';
@@ -43,6 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ApiSession> _subjectSessions = [];
   bool _isLoadingHistory = false;
   ApiSession? _chatSession;
+  int _lastRevealMessageCount = 0;
 
   @override
   void initState() {
@@ -64,6 +64,11 @@ class _ChatScreenState extends State<ChatScreen> {
     _focusNode.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  bool get _isOwner {
+    if (_currentSessionId == null) return true; // New chat is always mine
+    return _chatSession?.userId == BackendApiService.instance.currentUser?.id;
   }
 
   @override
@@ -99,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
               )
             : null,
         actions: [
-          if (messages.where((m) => m.role == 'user').length >= 3)
+          if ((messages.where((m) => m.role == 'user').length - _lastRevealMessageCount) >= 3)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilledButton.tonalIcon(
@@ -108,17 +113,24 @@ class _ChatScreenState extends State<ChatScreen> {
                 label: const Text('Show Answer'),
               ),
             ),
-          Builder(builder: (context) {
-            return IconButton(
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-              icon: const Icon(Icons.history_rounded),
-              tooltip: 'Chat History',
-            );
-          }),
+          if (_currentSessionId != null && _isOwner)
+            IconButton(
+              onPressed: () => _showShareDialog(_chatSession!),
+              icon: const Icon(Icons.share_rounded),
+              tooltip: 'Share Chat',
+            ),
+          if (_isOwner)
+            Builder(builder: (context) {
+              return IconButton(
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                icon: const Icon(Icons.history_rounded),
+                tooltip: 'Chat History',
+              );
+            }),
           const SizedBox(width: 8),
         ],
       ),
-      endDrawer: _buildHistoryDrawer(context),
+      endDrawer: _isOwner ? _buildHistoryDrawer(context) : null,
       body: SafeArea(
         child: Column(
           children: [
@@ -194,63 +206,86 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              decoration: BoxDecoration(
-                color: palette.inputBar,
-                border: isDark ? Border(top: BorderSide(color: palette.outline, width: 1)) : null,
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.04),
-                    blurRadius: 24,
-                    offset: const Offset(0, -8),
-                  ),
-                ],
+            if (_chatSession?.collaborators.any((c) => c.userId == BackendApiService.instance.currentUser?.id) ?? false)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: palette.surfaceLow,
+                  border: Border(top: BorderSide(color: palette.outline, width: 1)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.visibility_rounded, size: 18, color: palette.textMuted),
+                    const SizedBox(width: 8),
+                    Text(
+                      'You have view-only access to this chat',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textMuted,
+                          ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                decoration: BoxDecoration(
+                  color: palette.inputBar,
+                  border: isDark ? Border(top: BorderSide(color: palette.outline, width: 1)) : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.04),
+                      blurRadius: 24,
+                      offset: const Offset(0, -8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: isLoading || isBootstrapping
+                          ? null
+                          : _sendSimplifyRequest,
+                      icon: const Icon(Icons.lightbulb_rounded),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        textInputAction: TextInputAction.send,
+                        minLines: 1,
+                        maxLines: 4,
+                        enabled: !isLoading, // Allow typing even while bootstrapping
+                        decoration: InputDecoration(
+                          hintText: 'Share your thought...',
+                          suffixIcon: VoiceInputSuffix(controller: controller),
+                        ),
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [AppColors.primary, palette.primaryDim],
+                        ),
+                      ),
+                      child: IconButton(
+                        onPressed:
+                            isLoading || isBootstrapping ? null : _sendMessage,
+                        icon: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: isLoading || isBootstrapping
-                        ? null
-                        : _sendSimplifyRequest,
-                    icon: const Icon(Icons.lightbulb_rounded),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      focusNode: _focusNode,
-                      autofocus: true,
-                      textInputAction: TextInputAction.send,
-                      minLines: 1,
-                      maxLines: 4,
-                      enabled: !isLoading, // Allow typing even while bootstrapping
-                      decoration: InputDecoration(
-                        hintText: 'Share your thought...',
-                        suffixIcon: VoiceInputSuffix(controller: controller),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [AppColors.primary, palette.primaryDim],
-                      ),
-                    ),
-                    child: IconButton(
-                      onPressed:
-                          isLoading || isBootstrapping ? null : _sendMessage,
-                      icon: const Icon(
-                        Icons.arrow_upward_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -412,6 +447,70 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Future<void> _showShareDialog(ApiSession session) async {
+    final emailController = TextEditingController();
+    
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Share Chat Session'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Invite someone to view this chat. They will have read-only access.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: context.palette.textMuted,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Invitee Email',
+                hintText: 'user@example.com',
+                prefixIcon: Icon(Icons.mail_outline_rounded),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Share'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final email = emailController.text.trim();
+      if (email.isEmpty) return;
+      
+      try {
+        await BackendApiService.instance.shareSession(session.id, email);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Chat shared with $email')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to share: $e')),
+          );
+        }
+      }
+    }
+  }
+
   void _switchToSession(String? sessionId) {
     if (_currentSessionId == sessionId) {
       Navigator.pop(context);
@@ -432,7 +531,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildHistoryDrawer(BuildContext context) {
     final palette = context.palette;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Drawer(
       backgroundColor: palette.surfaceLow,
@@ -450,7 +548,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.history_rounded, color: AppColors.primary),
+                    child: const Icon(Icons.history_rounded, color: AppColors.primary),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -540,13 +638,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined, size: 18),
                                     onPressed: () => _renameSession(session),
-                                    color: isCurrent ? AppColors.primary.withOpacity(0.7) : palette.textMuted,
+                                    color: isCurrent ? AppColors.primary.withValues(alpha: 0.7) : palette.textMuted,
                                     tooltip: 'Rename',
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline, size: 18),
                                     onPressed: () => _deleteSession(session.id),
-                                    color: isCurrent ? AppColors.primary.withOpacity(0.7) : Colors.red.withOpacity(0.6),
+                                    color: isCurrent ? AppColors.primary.withValues(alpha: 0.7) : Colors.red.withValues(alpha: 0.6),
                                     tooltip: 'Delete',
                                   ),
                                 ],
@@ -589,6 +687,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendRevealRequest() async {
+    setState(() {
+      _lastRevealMessageCount = messages.where((m) => m.role == 'user').length;
+    });
     await _submitUserMessage(
       'I give up, please show me the full solution with reasoning.',
     );

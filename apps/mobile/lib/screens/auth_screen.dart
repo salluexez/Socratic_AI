@@ -81,11 +81,12 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: 32),
               Text(
                 isSignIn ? 'Welcome back' : 'Create your account',
-                style: GoogleFonts.cookie(
-                  textStyle: Theme.of(context).textTheme.displayMedium,
-                  fontSize: 48,
-                  height: 1.0,
-                ),
+                  style: GoogleFonts.cookie(
+                    textStyle: Theme.of(context).textTheme.displayMedium,
+                    fontSize: 48,
+                    height: 1.0,
+                    color: palette.primaryDim,
+                  ),
               ),
               const SizedBox(height: 12),
               Text(

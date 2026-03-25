@@ -4,8 +4,6 @@ import { User } from '@socratic-ai/types';
 
 export interface IUserDocument extends Omit<User, '_id'>, Document {
   password: string;
-  deviceTokens: string[];
-  notificationsEnabled: boolean;
 }
 
 const userSchema = new Schema<IUserDocument>(
@@ -13,8 +11,6 @@ const userSchema = new Schema<IUserDocument>(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    deviceTokens: { type: [String], default: [] },
-    notificationsEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
