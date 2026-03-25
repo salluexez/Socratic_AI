@@ -1,0 +1,35 @@
+services:
+  # 1. Python AI Service (Socratic Tutor)
+  - type: web
+    name: socratic-ai-python
+    runtime: docker
+    repo: https://github.com/salluexez/Socratic_AI
+    branch: mobile
+    dockerContext: apps/mobile/backend/src/script
+    dockerfilePath: apps/mobile/backend/src/script/Dockerfile
+    plan: free
+    envVars:
+      - key: groq_api
+        sync: false # REQUIRED: Add your Groq API Key in Render Dashboard
+
+  # 2. Bun Backend Gateway (Auth & Sessions)
+  - type: web
+    name: socratic-ai-backend
+    runtime: docker
+    repo: https://github.com/salluexez/Socratic_AI
+    branch: mobile
+    dockerContext: apps/mobile/backend
+    dockerfilePath: apps/mobile/backend/Dockerfile
+    plan: free
+    envVars:
+      - key: MONGODB_URI
+        sync: false # REQUIRED: Add your MongoDB URI in Render Dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SOCRATIC_AI_URL
+        fromService:
+          type: web
+          name: socratic-ai-python
+          property: host
+      - key: NODE_ENV
+        value: production
