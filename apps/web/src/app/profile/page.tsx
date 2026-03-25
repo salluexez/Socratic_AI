@@ -4,16 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useThemeStore, themes } from "@/store/useThemeStore";
 import { 
-  User, 
-  Settings, 
   LogOut, 
   Mail, 
   ArrowLeft,
-  ChevronRight,
   Flame,
-  LayoutGrid,
   Search,
   Check
 } from "lucide-react";

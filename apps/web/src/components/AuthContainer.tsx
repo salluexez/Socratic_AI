@@ -1,171 +1,194 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
-import api from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
 import AuthTabs from "@/components/AuthTabs";
-import { useThemeStore } from "@/store/useThemeStore";
 import {
-  GraduationCap,
-  ArrowRight,
-  Sparkles,
-  Zap,
-  CheckCircle2,
-} from "lucide-react";
+  BrandMark,
+  EmailGlyph,
+  GoogleMark,
+  PasswordGlyph,
+  ScholarOrbIllustration,
+  SubmitArrow,
+  VisibilityGlyph,
+} from "@/components/icons/AuthIcons";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useThemeStore } from "@/store/useThemeStore";
+import api from "@/lib/api";
 
 export default function AuthContainer() {
-  const searchParams = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const { user, setUser } = useAuthStore();
+  const hydrate = useThemeStore((state) => state.hydrate);
+  const pathname = usePathname();
   const router = useRouter();
+  const mode: "signin" | "signup" = pathname === "/signup" ? "signup" : "signin";
 
-  // Hydrate theme on mount
-  const hydrate = useThemeStore((s) => s.hydrate);
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
   useEffect(() => {
-    if (user) router.push("/dashboard");
-  }, [user, router]);
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [router, user]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     try {
-      const endpoint = mode === 'signin' ? "/auth/signin" : "/auth/signup";
-      const payload = mode === 'signin' ? { email, password } : { name, email, password };
+      const endpoint = mode === "signin" ? "/auth/signin" : "/auth/signup";
+      const payload = mode === "signin"
+        ? { email, password }
+        : { name, email, password };
+
       const response = await api.post(endpoint, payload);
 
       if (response.data.success) {
         setUser(response.data.data);
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || `${mode === 'signin' ? 'Login' : 'Signup'} failed.`);
+    } catch (err: unknown) {
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.error
+        : undefined;
+      setError(message || `${mode === "signin" ? "Login" : "Signup"} failed.`);
     }
   };
 
-  const motivationList = [
-    {
-      icon: <Sparkles size={18} style={{ color: 'var(--accent)' }} />,
-      title: "Discovery-Based Learning",
-      description: "Learn through scaffolding and guided questions."
-    },
-    {
-      icon: <Zap size={18} style={{ color: 'var(--accent)' }} />,
-      title: "The Socratic Method",
-      description: "Master subjects by exploring the why, not just the what."
-    }
-  ];
+  const panelStyle = {
+    background: "rgba(32, 40, 57, 0.42)",
+    border: "1px solid color-mix(in srgb, var(--border) 84%, white 8%)",
+    backdropFilter: "blur(22px)",
+    WebkitBackdropFilter: "blur(22px)",
+  } as const;
+
+  const inputShellStyle = {
+    backgroundColor: "color-mix(in srgb, var(--surface-alt) 62%, transparent)",
+    border: "1px solid color-mix(in srgb, var(--border) 76%, transparent)",
+    color: "var(--foreground)",
+  } as const;
 
   return (
-    <div className="flex min-h-screen font-sans" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
-      {/* Side Content */}
-      <div
-        className="hidden lg:flex w-[45%] flex-col justify-between p-16 relative overflow-hidden"
-        style={{ backgroundColor: 'var(--surface)', borderRight: '1px solid var(--border)' }}
+    <main
+      className="flex min-h-screen overflow-hidden"
+      style={{ fontFamily: "Inter, Segoe UI, Arial, sans-serif", backgroundColor: "var(--background)", color: "var(--foreground)" }}
+    >
+      <section
+        className="relative hidden min-h-screen w-1/2 items-center justify-center overflow-hidden px-12 py-16 md:flex"
+        style={{ backgroundColor: "color-mix(in srgb, var(--background) 84%, black 16%)" }}
       >
-        <div className="flex items-center space-x-3 relative z-10">
-          <GraduationCap size={24} style={{ color: 'var(--accent)' }} />
-          <span className="text-xl font-black uppercase tracking-[0.2em]" style={{ color: 'var(--foreground)' }}>
-            Socratic
+        <div
+          className="absolute -left-24 -top-24 h-[30rem] w-[30rem] rounded-full blur-[120px]"
+          style={{ background: "color-mix(in srgb, var(--accent) 16%, transparent)" }}
+        />
+        <div
+          className="absolute -bottom-24 -right-20 h-[26rem] w-[26rem] rounded-full blur-[110px]"
+          style={{ background: "color-mix(in srgb, #44e2cd 16%, transparent)" }}
+        />
+
+        <div className="absolute left-12 top-12 flex items-center gap-3">
+          <BrandMark />
+          <span className="text-2xl font-bold tracking-tight" style={{ color: "var(--foreground)", fontFamily: "'Plus Jakarta Sans', Inter, Segoe UI, sans-serif" }}>
+            Socratic AI
           </span>
         </div>
 
-        <div className="relative z-10 space-y-12">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-6"
-          >
-            <h1 className="text-5xl font-black leading-[1.05] tracking-tighter" style={{ color: 'var(--foreground)' }}>
-              {mode === 'signin' ? "Welcome back to the Socratic." : "Architect your own discovery."}
-            </h1>
-            <p className="text-lg max-w-sm leading-relaxed font-medium" style={{ color: 'var(--muted)' }}>
-              A workspace where the art of the question transforms the path of your learning.
-            </p>
-          </motion.div>
-
-          <div className="space-y-6">
-            {motivationList.map((m, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + (i * 0.1) }}
-                className="flex items-start space-x-4 max-w-sm"
-              >
-                <div
-                  className="mt-1 p-2 rounded-lg"
-                  style={{ border: '1px solid var(--border)' }}
-                >
-                  {m.icon}
-                </div>
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--foreground)' }}>{m.title}</h3>
-                  <p className="text-sm font-medium" style={{ color: 'var(--muted)' }}>{m.description}</p>
-                </div>
-              </motion.div>
-            ))}
+        <div className="relative z-10 flex max-w-xl flex-col items-center text-center">
+          <div className="mb-12">
+            <ScholarOrbIllustration />
           </div>
-        </div>
 
-        <div className="relative z-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: 'var(--border)' }}>
-            Powered by Socratic Intelligence
+          <h1 className="mb-6 text-5xl font-extrabold leading-[1.02] tracking-[-0.05em]" style={{ fontFamily: "'Plus Jakarta Sans', Inter, Segoe UI, sans-serif" }}>
+            Elevate your
+            <br />
+            <span
+              style={{
+                background: "linear-gradient(135deg, color-mix(in srgb, var(--accent) 82%, white) 0%, #44e2cd 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              intellectual journey
+            </span>
+          </h1>
+
+          <p className="max-w-md text-lg leading-8" style={{ color: "var(--muted)" }}>
+            Join a question-led study space designed to turn complex ideas into clear, durable understanding.
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Form Area */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-16">
-        <motion.div
-          layout
-          className="w-full max-w-sm space-y-10"
+      <section className="relative flex min-h-screen w-full items-center justify-center px-6 py-10 md:w-1/2 md:px-16 lg:px-20">
+        <div className="absolute left-8 top-8 flex items-center gap-3 md:hidden">
+          <BrandMark className="h-9 w-9" />
+          <span className="text-xl font-bold tracking-tight" style={{ color: "var(--foreground)", fontFamily: "'Plus Jakarta Sans', Inter, Segoe UI, sans-serif" }}>
+            Socratic AI
+          </span>
+        </div>
+
+        <div
+          className="w-full max-w-md rounded-[2rem] p-6 sm:p-8"
+          style={panelStyle}
         >
-          <AuthTabs activeTab={mode} onChange={(m) => { setMode(m); setError(""); }} />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={mode}
+              initial={{ opacity: 0, x: mode === "signup" ? 28 : -28, y: 10, scale: 0.985 }}
+              animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: mode === "signup" ? -24 : 24, y: -8, scale: 0.985 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="space-y-8"
+            >
+            <AuthTabs
+              activeTab={mode}
+              onChange={(nextMode) => {
+                router.push(nextMode === "signup" ? "/signup" : "/login");
+              }}
+            />
 
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black tracking-tighter" style={{ color: 'var(--foreground)' }}>
-                {mode === 'signin' ? "Welcome Back" : "Welcome to Socratics"}
+            <div className="space-y-2 text-center">
+              <h2 className="text-3xl font-extrabold tracking-[-0.04em]" style={{ fontFamily: "'Plus Jakarta Sans', Inter, Segoe UI, sans-serif" }}>
+                {mode === "signin" ? "Welcome back" : "Join Socratic AI"}
               </h2>
-              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted)' }}>
-                {mode === 'signin' ? "Enter your coordinates" : "Begin your intellectual archive"}
+              <p className="text-sm" style={{ color: "var(--muted)" }}>
+                {mode === "signin"
+                  ? "Sign in to continue your guided learning sessions."
+                  : "Create an account to start your question-first workspace."}
               </p>
             </div>
 
-            <form onSubmit={handleAuth} className="space-y-5">
-              <AnimatePresence mode="popLayout">
-                {mode === 'signup' && (
+            <form className="space-y-5" onSubmit={handleAuth}>
+              <AnimatePresence initial={false}>
+                {mode === "signup" && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0, y: -20 }}
-                    animate={{ opacity: 1, height: 'auto', y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: -20 }}
-                    className="space-y-2"
+                    key="signup-name"
+                    initial={{ opacity: 0, y: -14, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -10, height: 0 }}
+                    transition={{ duration: 0.24, ease: "easeOut" }}
+                    className="space-y-2 overflow-hidden"
                   >
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1" style={{ color: 'var(--muted)' }}>Name</label>
+                    <label className="ml-1 block text-sm font-medium" htmlFor="name" style={{ color: "var(--muted)" }}>
+                      Full Name
+                    </label>
                     <input
+                      id="name"
                       type="text"
                       required
-                      className="w-full px-5 py-4 rounded-xl focus:outline-none transition-all font-medium"
-                      style={{
-                        backgroundColor: 'var(--background)',
-                        border: '1px solid var(--border)',
-                        color: 'var(--foreground)',
-                      }}
-                      placeholder="e.g. Socrates"
+                      placeholder="e.g. Ada Lovelace"
+                      className="w-full rounded-2xl px-4 py-4 outline-none transition-all focus:ring-2"
+                      style={{ ...inputShellStyle, boxShadow: "none" }}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
@@ -173,95 +196,134 @@ export default function AuthContainer() {
                 )}
               </AnimatePresence>
 
-              <div className="space-y-2 mt-10">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1" style={{ color: 'var(--muted)' }}>Email</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-5 py-4 rounded-xl focus:outline-none transition-all font-medium"
-                  style={{
-                    backgroundColor: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--foreground)',
-                  }}
-                  placeholder="alex@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+              <div className="space-y-2">
+                <label className="ml-1 block text-sm font-medium" htmlFor="email" style={{ color: "var(--muted)" }}>
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4" style={{ color: "var(--muted)" }}>
+                    <EmailGlyph />
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    placeholder="name@university.edu"
+                    className="w-full rounded-2xl py-4 pl-12 pr-4 outline-none transition-all focus:ring-2"
+                    style={{ ...inputShellStyle, boxShadow: "none" }}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1" style={{ color: 'var(--muted)' }}>
-                  {mode === 'signin' ? 'Enter your Password' : 'Create your Password'}
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-5 py-4 rounded-xl focus:outline-none transition-all font-medium"
-                  style={{
-                    backgroundColor: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--foreground)',
-                  }}
-                  placeholder={mode === 'signin' ? '••••••••' : 'Create your password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="flex items-center justify-between px-1">
+                  <label className="block text-sm font-medium" htmlFor="password" style={{ color: "var(--muted)" }}>
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    className="text-xs font-bold transition-colors"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    Forgot?
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4" style={{ color: "var(--muted)" }}>
+                    <PasswordGlyph />
+                  </div>
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="Enter your password"
+                    className="w-full rounded-2xl py-4 pl-12 pr-12 outline-none transition-all focus:ring-2"
+                    style={{ ...inputShellStyle, boxShadow: "none" }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 transition-colors"
+                    style={{ color: "var(--muted)" }}
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    <VisibilityGlyph visible={showPassword} />
+                  </button>
+                </div>
               </div>
 
+              <label className="flex items-center gap-3 px-1 text-sm" style={{ color: "var(--muted)" }}>
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 rounded-md"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Remember my session
+              </label>
+
               {error && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="p-4 text-[10px] font-black uppercase tracking-widest rounded-lg"
+                <div
+                  className="rounded-2xl px-4 py-3 text-sm"
                   style={{
-                    backgroundColor: '#E06C7522',
-                    color: '#E06C75',
-                    border: '1px solid #E06C7544',
+                    backgroundColor: "rgba(224, 108, 117, 0.12)",
+                    border: "1px solid rgba(224, 108, 117, 0.3)",
+                    color: "#ffb4ab",
                   }}
                 >
                   {error}
-                </motion.div>
+                </div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-5 text-xs font-black uppercase tracking-[0.3em] rounded-xl active:scale-[0.98] transition-all shadow-xl flex items-center justify-center group"
+                className="flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-sm font-extrabold transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                 style={{
-                  backgroundColor: 'var(--accent)',
-                  color: 'var(--background)',
+                  background: "linear-gradient(135deg, color-mix(in srgb, var(--accent) 90%, white 10%) 0%, color-mix(in srgb, var(--accent) 72%, var(--surface-alt)) 100%)",
+                  color: "var(--background)",
+                  boxShadow: "0 18px 36px -24px color-mix(in srgb, var(--accent) 55%, transparent)",
                 }}
               >
-                {mode === 'signin' ? 'Sign In' : 'Sign Up'}
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                {mode === "signin" ? "Sign In to Library" : "Create Account"}
+                <SubmitArrow />
+              </button>
+
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t" style={{ borderColor: "color-mix(in srgb, var(--border) 70%, transparent)" }} />
+                <span className="mx-4 text-[10px] font-black uppercase tracking-[0.35em]" style={{ color: "var(--muted)" }}>
+                  Or
+                </span>
+                <div className="flex-grow border-t" style={{ borderColor: "color-mix(in srgb, var(--border) 70%, transparent)" }} />
+              </div>
+
+              <button
+                type="button"
+                disabled
+                className="flex w-full items-center justify-center gap-3 rounded-full px-4 py-4 text-sm font-semibold transition-all opacity-80"
+                style={{
+                  backgroundColor: "color-mix(in srgb, var(--surface-alt) 78%, var(--surface))",
+                  border: "1px solid color-mix(in srgb, var(--border) 76%, transparent)",
+                  color: "var(--foreground)",
+                }}
+              >
+                <GoogleMark className="h-5 w-5" />
+                <span>Continue with Google</span>
               </button>
             </form>
 
-            <div className="flex items-center space-x-4">
-              <div className="flex-1" style={{ borderTop: '1px solid var(--border)' }} />
-              <span className="text-[8px] font-black uppercase tracking-[0.5em]" style={{ color: 'var(--border)' }}>Or Sign In With</span>
-              <div className="flex-1" style={{ borderTop: '1px solid var(--border)' }} />
-            </div>
-
-            <button
-              className="w-full py-4 rounded-xl transition-all font-black text-[9px] uppercase tracking-widest flex items-center justify-center space-x-3 group"
-              style={{
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--muted)',
-              }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-              </svg>
-              <span>Continue With Google</span>
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    </div>
+            <footer className="flex flex-wrap items-center justify-center gap-5 text-xs" style={{ color: "var(--muted)" }}>
+              <a href="#" className="transition-colors hover:text-[var(--foreground)]">Privacy Protocol</a>
+              <a href="#" className="transition-colors hover:text-[var(--foreground)]">Terms of Inquiry</a>
+              <span>&copy; 2026 Socratic AI</span>
+            </footer>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+    </main>
   );
 }

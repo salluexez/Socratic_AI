@@ -126,22 +126,46 @@ export const updateUserSubjects = async (req: Request, res: Response) => {
   }
 };
 
-// Search for users by name
+// Search for users by email
 export const searchUsers = async (req: Request, res: Response) => {
-  const { name } = req.query;
+  const { email } = req.query;
   const userId = (req as any).user._id;
 
-  if (!name || typeof name !== 'string') {
-    return res.status(400).json({ success: false, error: 'Name query is required' });
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ success: false, error: 'Email query is required' });
   }
 
   try {
     const users = await UserModel.find({
-      name: { $regex: name, $options: 'i' },
+      email: { $regex: email, $options: 'i' },
       _id: { $ne: userId }
-    }).select('name _id').limit(10);
+    }).select('name email _id').limit(10);
     res.json({ success: true, data: users });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to search users' });
+  }
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+  const userId = (req as any).user._id;
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ success: false, error: 'Name is required' });
+  }
+
+  try {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set: { name } },
+      { new: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    res.json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update profile' });
   }
 };

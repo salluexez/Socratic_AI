@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 
 interface AuthTabsProps {
@@ -11,39 +10,40 @@ interface AuthTabsProps {
 export const AuthTabs = ({ activeTab, onChange }: AuthTabsProps) => {
   return (
     <div
-      className="flex p-1 rounded-xl w-fit mx-auto mb-8"
-      style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+      className="mx-auto flex w-fit rounded-full p-1"
+      style={{
+        backgroundColor: 'color-mix(in srgb, var(--surface-alt) 76%, var(--surface))',
+        border: '1px solid var(--border)',
+      }}
     >
-      <button
-        onClick={() => onChange('signin')}
-        className="relative px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300"
-        style={{ color: activeTab === 'signin' ? 'var(--background)' : 'var(--muted)' }}
-      >
-        {activeTab === 'signin' && (
-          <motion.div
-            layoutId="activeTabIndicator"
-            className="absolute inset-0 shadow-lg"
-            transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-            style={{ borderRadius: '8px', backgroundColor: 'var(--accent)' }}
-          />
-        )}
-        <span className="relative z-10">Sign In</span>
-      </button>
-      <button
-        onClick={() => onChange('signup')}
-        className="relative px-6 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all duration-300"
-        style={{ color: activeTab === 'signup' ? 'var(--background)' : 'var(--muted)' }}
-      >
-        {activeTab === 'signup' && (
-          <motion.div
-            layoutId="activeTabIndicator"
-            className="absolute inset-0 shadow-lg"
-            transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-            style={{ borderRadius: '8px', backgroundColor: 'var(--accent)' }}
-          />
-        )}
-        <span className="relative z-10">Sign Up</span>
-      </button>
+      {[
+        { key: 'signin' as const, label: 'Sign In' },
+        { key: 'signup' as const, label: 'Sign Up' },
+      ].map((tab) => {
+        const active = activeTab === tab.key;
+        return (
+          <button
+            key={tab.key}
+            onClick={() => onChange(tab.key)}
+            className="relative min-w-28 rounded-full px-8 py-3 text-sm font-extrabold transition-all duration-300"
+            style={{ color: active ? 'var(--background)' : 'var(--muted)' }}
+          >
+            {active && (
+              <motion.div
+                layoutId="activeTabIndicator"
+                className="absolute inset-0"
+                transition={{ type: 'spring', bounce: 0.15, duration: 0.45 }}
+                style={{
+                  borderRadius: 999,
+                  background: 'linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 35%, white) 100%)',
+                  boxShadow: '0 14px 28px -20px color-mix(in srgb, var(--accent) 55%, transparent)',
+                }}
+              />
+            )}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 };

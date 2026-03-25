@@ -1,10 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useThemeStore, themes, type ThemePalette } from "@/store/useThemeStore";
-import { Info, Palette, Sparkles, User as UserIcon } from "lucide-react";
+import { Check, Info, Palette, User as UserIcon } from "lucide-react";
+import toast from "react-hot-toast";
+
+function getPatternLayer(palette: ThemePalette) {
+  if (palette.cardPattern === "grid") {
+    return `
+      linear-gradient(${palette.border}55 1px, transparent 1px),
+      linear-gradient(90deg, ${palette.border}55 1px, transparent 1px)
+    `;
+  }
+
+  if (palette.cardPattern === "stripes") {
+    return `repeating-linear-gradient(135deg, ${palette.border}66 0 8px, transparent 8px 16px)`;
+  }
+
+  if (palette.cardPattern === "rings") {
+    return `radial-gradient(circle at 20% 30%, ${palette.secondary}55 0 12%, transparent 13% 100%), radial-gradient(circle at 80% 70%, ${palette.accent}66 0 16%, transparent 17% 100%)`;
+  }
+
+  if (palette.cardPattern === "mesh") {
+    return `conic-gradient(from 130deg at 20% 20%, ${palette.accent}44, transparent 38%), conic-gradient(from -45deg at 70% 70%, ${palette.secondary}44, transparent 42%)`;
+  }
+
+  return `repeating-linear-gradient(0deg, ${palette.border}33 0 2px, transparent 2px 7px)`;
+}
 
 function ThemeCard({
   palette,
@@ -18,51 +42,56 @@ function ThemeCard({
   return (
     <button
       onClick={onSelect}
-      className="interactive-card accent-halo reveal-up flex flex-col items-start gap-4 rounded-3xl p-5 text-left"
+      className="interactive-card shimmer-sweep reveal-up group relative flex flex-col items-start gap-3 rounded-2xl p-4 text-left"
       style={{
-        background: `linear-gradient(180deg, ${palette.surfaceAlt} 0%, ${palette.surface} 100%)`,
+        background: `linear-gradient(160deg, ${palette.surface} 0%, ${palette.surfaceAlt} 100%)`,
         border: isActive ? `1px solid ${palette.accent}` : `1px solid ${palette.border}`,
-        boxShadow: isActive ? `0 0 0 3px ${palette.accentSoft}` : "none",
+        boxShadow: isActive
+          ? `0 0 0 1px ${palette.accent}44, 0 18px 28px -18px ${palette.cardGlow}`
+          : `0 14px 24px -20px ${palette.cardGlow}`,
       }}
     >
       <div
-        className="h-24 w-full rounded-2xl"
+        className="relative h-14 w-full overflow-hidden rounded-xl transition-transform duration-300 group-hover:scale-[1.02]"
         style={{
-          background: `radial-gradient(circle at top right, ${palette.accentSoft} 0%, transparent 45%), linear-gradient(135deg, ${palette.background} 0%, ${palette.surfaceAlt} 50%, ${palette.surface} 100%)`,
+          backgroundColor: palette.cardBase,
+          backgroundImage: `${getPatternLayer(palette)}, linear-gradient(135deg, ${palette.cardBase} 0%, ${palette.surfaceAlt} 55%, ${palette.surface} 100%)`,
+          backgroundSize: palette.cardPattern === "grid" ? "12px 12px, 12px 12px, cover" : "cover",
           border: `1px solid ${palette.border}`,
         }}
-      />
-      <div className="flex items-center gap-2">
-        <div className="h-4 w-4 rounded-full" style={{ backgroundColor: palette.background }} />
-        <div className="h-4 w-4 rounded-full" style={{ backgroundColor: palette.accent }} />
-        <div className="h-4 w-4 rounded-full" style={{ backgroundColor: palette.muted }} />
-        <div className="h-4 w-4 rounded-full" style={{ backgroundColor: palette.foreground }} />
+      >
+        <div
+          className="absolute -right-5 -top-5 h-16 w-16 rounded-full blur-xl transition-transform duration-300 group-hover:scale-125"
+          style={{ backgroundColor: palette.cardGlow }}
+        />
+        <div
+          className="absolute bottom-2 left-2 h-1.5 w-8 rounded-full"
+          style={{ backgroundColor: palette.accent }}
+        />
+        <div
+          className="absolute bottom-2 left-11 h-1.5 w-5 rounded-full"
+          style={{ backgroundColor: palette.secondary }}
+        />
       </div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold" style={{ color: palette.foreground }}>
-            {palette.name}
-          </span>
-          {isActive && (
-            <span
-              className="rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.2em]"
-              style={{ backgroundColor: palette.accentSoft, color: palette.accent }}
-            >
-              Active
-            </span>
-          )}
+      <div className="flex w-full items-center justify-between">
+        <span className="text-[11px] font-bold" style={{ color: palette.foreground }}>
+          {palette.name}
+        </span>
+        <div className="flex items-center gap-1">
+          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: palette.accent }} />
+          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: palette.secondary }} />
+          {isActive && <Check size={12} style={{ color: palette.accent }} />}
         </div>
-        <p className="text-xs" style={{ color: palette.muted }}>
-          Tuned for contrast, softer depth, and accent highlights that feel alive.
-        </p>
       </div>
     </button>
   );
 }
 
 export default function SettingsPage() {
-  const { user, checkAuth, loading } = useAuthStore();
+  const { user, checkAuth, loading, updateProfile } = useAuthStore();
   const { activeTheme, setTheme } = useThemeStore();
+  const [name, setName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -72,6 +101,19 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!loading && !user) router.push("/login");
   }, [user, loading, router]);
+
+  const handleSave = async () => {
+    const nextName = name.trim() || user?.name || "";
+    if (!nextName.trim()) return;
+    setIsSaving(true);
+    const success = await updateProfile({ name: nextName.trim() });
+    if (success) {
+      toast.success("Profile updated successfully");
+    } else {
+      toast.error("Failed to update profile");
+    }
+    setIsSaving(false);
+  };
 
   if (loading || !user) {
     return (
@@ -85,25 +127,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto flex max-w-5xl flex-col gap-12 px-6 py-12">
-        <div className="reveal-up relative overflow-hidden rounded-[2rem] px-8 py-10 panel-surface">
-          <div className="floating-orb absolute top-0 right-0 h-40 w-40 rounded-full blur-3xl" style={{ background: "var(--accent-soft)" }} />
-          <div className="relative space-y-3">
-            <div
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
-              style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent)" }}
-            >
-              <Sparkles size={14} />
-              Workspace Tuning
-            </div>
-            <h1 className="text-4xl font-black tracking-[-0.04em]" style={{ color: "var(--foreground)" }}>
-              Settings
-            </h1>
-            <p className="max-w-2xl text-sm leading-7" style={{ color: "var(--muted)" }}>
-              Refine the mood of your study space, tune the visual rhythm, and keep the interface feeling focused without becoming flat.
-            </p>
-          </div>
-        </div>
+      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
 
         <section className="space-y-6 reveal-up stagger-1">
           <div className="flex items-center gap-3">
@@ -123,15 +147,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {themeList.map((palette, index) => (
-              <div key={palette.key} className={index < 4 ? "stagger-2" : "stagger-3"}>
-                <ThemeCard
-                  palette={palette}
-                  isActive={activeTheme === palette.key}
-                  onSelect={() => setTheme(palette.key)}
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {themeList.map((palette) => (
+              <ThemeCard
+                key={palette.key}
+                palette={palette}
+                isActive={activeTheme === palette.key}
+                onSelect={() => setTheme(palette.key)}
+              />
             ))}
           </div>
         </section>
@@ -157,21 +180,39 @@ export default function SettingsPage() {
 
             <div className="space-y-4">
               <div className="panel-muted rounded-2xl p-4">
-                <div className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: "var(--muted)" }}>
-                  Name
-                </div>
-                <div className="mt-2 text-base font-bold" style={{ color: "var(--foreground)" }}>
-                  {user.name}
-                </div>
+                <label className="text-[10px] font-black uppercase tracking-[0.24em] block mb-2" style={{ color: "var(--muted)" }}>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={name || user.name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  className="w-full bg-transparent border-none p-0 text-base font-bold focus:ring-0 placeholder:text-[var(--muted)]/30"
+                  style={{ color: "var(--foreground)" }}
+                />
               </div>
               <div className="panel-muted rounded-2xl p-4">
                 <div className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: "var(--muted)" }}>
-                  Email
+                  Email Address
                 </div>
-                <div className="mt-2 text-base font-bold" style={{ color: "var(--foreground)" }}>
+                <div className="mt-2 text-sm font-medium opacity-60" style={{ color: "var(--foreground)" }}>
                   {user.email}
                 </div>
               </div>
+
+              <button
+                onClick={handleSave}
+                disabled={isSaving || (name.trim().length > 0 && name.trim() === user.name)}
+                className="w-full py-4 rounded-2xl bg-[var(--accent)] text-white text-[11px] font-black uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-20 disabled:cursor-not-allowed group relative overflow-hidden"
+              >
+                <span className="relative z-10">{isSaving ? "Synchronizing..." : "Save Identity Changes"}</span>
+                {isSaving && (
+                  <div className="absolute inset-x-0 bottom-0 h-1 bg-[var(--surface-alt)]">
+                    <div className="h-full bg-white/30 animate-progress" />
+                  </div>
+                )}
+              </button>
             </div>
           </div>
 

@@ -8,6 +8,7 @@ interface AuthState {
   setUser: (user: User | null) => void;
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: { name: string }) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -22,7 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       } else {
         set({ user: null, loading: false });
       }
-    } catch (error) {
+    } catch {
       set({ user: null, loading: false });
     }
   },
@@ -32,6 +33,19 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: null });
     } catch (error) {
       console.error('Logout failed', error);
+    }
+  },
+  updateProfile: async (data) => {
+    try {
+      const response = await api.put('/user/profile', data);
+      if (response.data.success) {
+        set({ user: response.data.data });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Update profile failed', error);
+      return false;
     }
   },
 }));

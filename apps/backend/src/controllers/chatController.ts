@@ -49,9 +49,12 @@ export const sendMessage = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Message content is required' });
     }
 
-    const chat = await ChatModel.findOne({ _id: chatId, userId, isActive: true });
+    const chat = await ChatModel.findOne({ 
+      _id: chatId, 
+      $or: [{ userId }, { 'collaborators.userId': userId, 'collaborators.access': 'write' }]
+    });
     if (!chat) {
-      return res.status(404).json({ success: false, error: 'Active chat not found' });
+      return res.status(404).json({ success: false, error: 'Chat not found or access denied' });
     }
 
     // Add user message
@@ -201,7 +204,9 @@ export const getChats = async (req: Request, res: Response) => {
     };
     if (subject) filter.subject = subject;
 
-    const chats = await ChatModel.find(filter).sort({ updatedAt: -1 });
+    const chats = await ChatModel.find(filter)
+      .populate('collaborators.userId', 'name email')
+      .sort({ updatedAt: -1 });
     res.json({ success: true, data: chats });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch chats' });
@@ -291,6 +296,46 @@ export const shareChat = async (req: Request, res: Response) => {
     res.json({ success: true, message: 'Chat shared successfully', data: chat });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to share chat' });
+  }
+};
+
+// Revoke share access
+export const unshareChat = async (req: Request, res: Response) => {
+  const { id, targetUserId } = req.params;
+  const userId = (req as any).user._id;
+
+  try {
+    const chat = await ChatModel.findOne({ _id: id, userId });
+    if (!chat) {
+      return res.status(404).json({ success: false, error: 'Chat not found' });
+    }
+
+    chat.collaborators = chat.collaborators.filter(c => c.userId._id.toString() !== targetUserId && c.userId.toString() !== targetUserId);
+    await chat.save();
+
+    res.json({ success: true, message: 'Share access revoked', data: chat });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to revoke share access' });
+  }
+};
+
+// Revoke ALL share access
+export const revokeAllShares = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = (req as any).user._id;
+
+  try {
+    const chat = await ChatModel.findOneAndUpdate(
+      { _id: id, userId },
+      { $set: { collaborators: [] } },
+      { new: true }
+    );
+    if (!chat) {
+      return res.status(404).json({ success: false, error: 'Chat not found' });
+    }
+    res.json({ success: true, message: 'All share access revoked', data: chat });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to revoke all share access' });
   }
 };
 

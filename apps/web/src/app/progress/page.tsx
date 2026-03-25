@@ -5,34 +5,57 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useThemeStore } from "@/store/useThemeStore";
-import { 
-  BarChart2, 
-  TrendingUp, 
-  Clock, 
-  BookOpen, 
-  ChevronRight, 
-  Award, 
+import subjectsData from "@/data/subjects.json";
+import {
+  Clock,
+  ChevronRight,
   History,
   LayoutDashboard,
   Brain,
   Activity,
   Flame,
-  ArrowLeft
+  ArrowLeft,
+  BookOpen,
 } from "lucide-react";
+
+interface WeeklyActivityPoint {
+  day: string;
+  count: number;
+}
+
+interface SubjectDistributionPoint {
+  subject: string;
+  percentage: number;
+}
+
+interface TimelineSession {
+  subject: string;
+  updatedAt: string;
+  messageCount: number;
+}
+
+interface StatsResponse {
+  totalSessions: number;
+  hoursLearned: number;
+  streak: number;
+  averageMastery: number;
+  weeklyActivity: WeeklyActivityPoint[];
+  subjectDistribution: SubjectDistributionPoint[];
+  recentTimeline: TimelineSession[];
+}
 
 export default function ProgressPage() {
   const { user, loading, checkAuth } = useAuthStore();
   const { hydrate } = useThemeStore();
   const router = useRouter();
-  const [statsData, setStatsData] = useState<any>(null);
+  const [statsData, setStatsData] = useState<StatsResponse | null>(null);
 
   useEffect(() => {
     checkAuth();
     hydrate();
-    
-    // Fetch stats
+
     import("@/lib/api").then(({ default: api }) => {
-      api.get("/user/stats").then(res => {
+      api.get("/user/stats").then((res) => {
         if (res.data.success) {
           setStatsData(res.data.data);
         }
@@ -58,11 +81,13 @@ export default function ProgressPage() {
     { label: "Learning Streak", value: `${statsData.streak} Days`, icon: Flame, color: "#FF8A65" },
   ];
 
-  const masteryData = statsData.masteryData || [];
+  const mostActiveDay = statsData.weeklyActivity.reduce(
+    (best: WeeklyActivityPoint, day: WeeklyActivityPoint) => (day.count > best.count ? day : best),
+    { day: "N/A", count: 0 }
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
-      {/* Navigation Header */}
       <header className="px-8 py-6 flex items-center justify-between sticky top-0 z-40 glass border-b border-[var(--border)]">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 hover:bg-[var(--surface)] rounded-xl transition-colors" style={{ color: 'var(--muted)' }}>
@@ -84,37 +109,34 @@ export default function ProgressPage() {
       </header>
 
       <main className="max-w-6xl mx-auto w-full px-8 py-12 space-y-12">
-        {/* Hero Section */}
         <section className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
             Intellectual Journey
           </h1>
           <p className="text-[var(--muted)] leading-relaxed max-w-2xl">
-            Detailed tracking of your Socratic dialogues and concept mastery across disciplines.
+            Track study momentum, revisit recent dialogues, and see where your understanding is growing strongest.
           </p>
         </section>
 
-        {/* Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="p-8 rounded-3xl transition-transform hover:-translate-y-1 shadow-tonal border border-[var(--border)] bg-[var(--surface)]"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 rounded-2xl" style={{ backgroundColor: `${stat.color}20`, color: stat.color }}>
                   <stat.icon size={24} />
                 </div>
-                <div className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Status</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Live</div>
               </div>
               <div className="text-3xl font-bold mb-1" style={{ color: 'var(--foreground)' }}>{stat.value}</div>
               <div className="text-sm font-medium" style={{ color: 'var(--muted)' }}>{stat.label}</div>
             </div>
           ))}
         </section>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Weekly Activity */}
           <section className="space-y-6">
             <div className="p-8 rounded-3xl bg-[var(--surface)] border border-[var(--border)] shadow-tonal space-y-8">
               <div className="flex items-center justify-between">
@@ -123,21 +145,21 @@ export default function ProgressPage() {
                   <p className="text-xs" style={{ color: 'var(--muted)' }}>Engagement by day of week</p>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] text-[10px] font-bold">
-                  +{Math.round(Math.random() * 20)}% vs last week
+                  Peak day: {mostActiveDay.day}
                 </div>
               </div>
-              
+
               <div className="flex items-end justify-between h-48 gap-2 pt-4">
-                {statsData.weeklyActivity.map((day: any, i: number) => {
-                  const maxCount = Math.max(...statsData.weeklyActivity.map((d: any) => d.count), 1);
+                {statsData.weeklyActivity.map((day: WeeklyActivityPoint, i: number) => {
+                  const maxCount = Math.max(...statsData.weeklyActivity.map((point) => point.count), 1);
                   const height = (day.count / maxCount) * 100;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
                       <div className="relative w-full flex justify-center items-end h-full">
-                        <div 
+                        <div
                           className="w-full max-w-[32px] rounded-t-xl transition-all duration-500 group-hover:opacity-80"
-                          style={{ 
-                            height: `${height}%`, 
+                          style={{
+                            height: `${height}%`,
                             minHeight: day.count > 0 ? '4px' : '0',
                             background: `linear-gradient(180deg, var(--accent) 0%, var(--accent-soft) 100%)`
                           }}
@@ -156,7 +178,6 @@ export default function ProgressPage() {
             </div>
           </section>
 
-          {/* Subject-wise Progress (Donut Chart) */}
           <section className="space-y-6">
             <div className="p-8 rounded-3xl bg-[var(--surface)] border border-[var(--border)] shadow-tonal space-y-8">
               <div>
@@ -173,11 +194,11 @@ export default function ProgressPage() {
                       stroke="var(--border)"
                       strokeWidth="12"
                     />
-                    {statsData.subjectDistribution.reduce((acc: any, sd: any, i: number) => {
+                    {statsData.subjectDistribution.reduce((acc: { elements: React.ReactNode[]; totalPercentage: number }, sd: SubjectDistributionPoint, i: number) => {
                       const colors = ["var(--accent)", "#9AC2FF", "#8FD3FF", "#FF8A65"];
                       const strokeDasharray = `${(sd.percentage / 100) * 251.2} 251.2`;
                       const strokeDashoffset = -((acc.totalPercentage / 100) * 251.2);
-                      
+
                       const element = (
                         <circle
                           key={i}
@@ -191,7 +212,7 @@ export default function ProgressPage() {
                           style={{ transition: 'all 1s ease-out' }}
                         />
                       );
-                      
+
                       return {
                         elements: [...acc.elements, element],
                         totalPercentage: acc.totalPercentage + sd.percentage
@@ -205,7 +226,7 @@ export default function ProgressPage() {
                 </div>
 
                 <div className="flex-grow space-y-4 w-full">
-                  {statsData.subjectDistribution.map((sd: any, i: number) => {
+                  {statsData.subjectDistribution.map((sd: SubjectDistributionPoint, i: number) => {
                     const colors = ["var(--accent)", "#9AC2FF", "#8FD3FF", "#FF8A65"];
                     return (
                       <div key={i} className="flex items-center justify-between group">
@@ -223,26 +244,23 @@ export default function ProgressPage() {
           </section>
         </div>
 
-        {/* Recent Discovery Timeline */}
         <section className="space-y-8">
           <div className="flex items-center gap-3">
             <History size={20} style={{ color: 'var(--accent)' }} />
             <h2 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Discovery Timeline</h2>
           </div>
-          
-          <div 
-            className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-tonal"
-          >
+
+          <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-tonal">
             {statsData.recentTimeline && statsData.recentTimeline.length > 0 ? (
-              statsData.recentTimeline.map((session: any, i: number) => (
-                <div 
-                  key={i} 
+              statsData.recentTimeline.map((session: TimelineSession, i: number) => (
+                <div
+                  key={i}
                   className="p-6 flex items-center justify-between hover:bg-[var(--background)] transition-colors group"
                   style={{ borderBottom: i === statsData.recentTimeline.length - 1 ? 'none' : '1px solid var(--border)' }}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--border)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      {session.subject.toLowerCase() === 'physics' ? '⚛️' : session.subject.toLowerCase() === 'math' ? '📐' : session.subject.toLowerCase() === 'chemistry' ? '🧪' : '🌿'}
+                      {subjectsData.find((subject) => subject.slug === session.subject.toLowerCase())?.icon || "📘"}
                     </div>
                     <div>
                       <div className="font-bold capitalize" style={{ color: 'var(--foreground)' }}>{session.subject} dialogue</div>
@@ -272,10 +290,9 @@ export default function ProgressPage() {
         </section>
       </main>
 
-      {/* Floating Bottom Nav for Mobile */}
       <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-4 glass border border-[var(--border)] rounded-full flex items-center gap-8 shadow-2xl z-50">
         <Link href="/dashboard" style={{ color: 'var(--muted)' }}><LayoutDashboard size={20} /></Link>
-        <Link href="/learn/physics" style={{ color: 'var(--accent)' }}><Brain size={20} /></Link>
+        <Link href="/learn" style={{ color: 'var(--accent)' }}><BookOpen size={20} /></Link>
         <Link href="/progress" style={{ color: 'var(--accent)' }}><Activity size={20} /></Link>
         <Link href="/profile" style={{ color: 'var(--muted)' }}><History size={20} /></Link>
       </nav>

@@ -2,7 +2,7 @@
   {
     "slug": "math",
     "name": "Mathematics",
-    "description": "The study of numbers, shapes, and patterns.",
+    "description": "Build fluency with numbers, patterns, logic, and problem solving.",
     "icon": "📐",
     "accent": "blue",
     "isPermanent": true
@@ -10,7 +10,7 @@
   {
     "slug": "physics",
     "name": "Physics",
-    "description": "The study of matter, energy, and the universe.",
+    "description": "Explore motion, forces, energy, and the rules shaping the universe.",
     "icon": "⚛️",
     "accent": "purple",
     "isPermanent": true
@@ -18,7 +18,7 @@
   {
     "slug": "chemistry",
     "name": "Chemistry",
-    "description": "The study of substances and their reactions.",
+    "description": "Understand substances, reactions, and how matter transforms.",
     "icon": "🧪",
     "accent": "orange",
     "isPermanent": true
@@ -26,7 +26,7 @@
   {
     "slug": "biology",
     "name": "Biology",
-    "description": "The study of living organisms and life processes.",
+    "description": "Study living systems, life processes, and how organisms interact.",
     "icon": "🌿",
     "accent": "green",
     "isPermanent": true
@@ -34,35 +34,35 @@
   {
     "slug": "computer-science",
     "name": "Computer Science",
-    "description": "Computing system and software development.",
+    "description": "Learn computing systems, software design, and computational thinking.",
     "icon": "💻",
     "accent": "cyan"
   },
   {
     "slug": "history",
     "name": "History",
-    "description": "The study of past events and civilizations.",
+    "description": "Examine past events, movements, and the people who shaped them.",
     "icon": "📜",
     "accent": "brown"
   },
   {
     "slug": "political-science",
     "name": "Political Science",
-    "description": "Systems of government and political activity.",
+    "description": "Analyze institutions, power, governance, and civic systems.",
     "icon": "⚖️",
     "accent": "indigo"
   },
   {
     "slug": "economics",
     "name": "Economics",
-    "description": "Production, consumption, and wealth transfer.",
+    "description": "Understand incentives, markets, and how resources move through society.",
     "icon": "📈",
     "accent": "teal"
   },
   {
     "slug": "literature",
     "name": "Literature",
-    "description": "Creative writing and literary analysis.",
+    "description": "Interpret stories, language, voice, and literary craft.",
     "icon": "📚",
     "accent": "pink"
   }

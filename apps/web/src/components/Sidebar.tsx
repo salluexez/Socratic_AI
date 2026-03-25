@@ -1,171 +1,119 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
   BookOpen,
-  BarChart3,
-  User,
-  ChevronRight,
   GraduationCap,
-  Settings
+  LayoutDashboard,
+  Settings,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-const subjects = [
-  { name: 'Mathematics', slug: 'mathematics' },
-  { name: 'Physics', slug: 'physics' },
-  { name: 'Philosophy', slug: 'philosophy' },
-  { name: 'History', slug: 'history' },
-];
+import { useAuthStore } from '@/store/useAuthStore';
 
 export const Sidebar = () => {
   const pathname = usePathname();
 
+  const { user } = useAuthStore();
+
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Progress', href: '/progress', icon: BarChart3 },
-    { name: 'Profile', href: '/profile', icon: User },
+    { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Learn', href: '/learn', icon: BookOpen },
+    { name: 'Progress', href: '/progress', icon: TrendingUp },
+    { name: 'Shared topics', href: '/shared-topics', icon: Users },
   ];
 
-  const isActive = (path: string) => pathname === path;
-  const isLearnActive = pathname?.startsWith('/learn');
+  const bottomItems = [
+    { name: 'Settings', href: '/settings', icon: Settings },
+  ];
+
+  const isActive = (href: string) => pathname === href;
 
   return (
     <aside
-      className="panel-surface fixed top-0 left-0 z-40 h-screen w-64 overflow-hidden"
-      style={{ borderRight: '1px solid var(--border)' }}
+      className="fixed left-0 top-0 z-40 hidden h-screen w-80 overflow-hidden lg:flex"
+      style={{
+        backgroundColor: "color-mix(in srgb, var(--background) 92%, black 8%)",
+        borderRight: "1px solid color-mix(in srgb, var(--border) 78%, transparent)",
+      }}
     >
-      <div className="absolute inset-x-0 top-0 h-32 opacity-70" style={{ background: 'radial-gradient(circle at top, var(--accent-soft) 0%, transparent 72%)' }} />
-      <div className="relative flex h-full flex-col px-3 py-6">
-        <div className="mb-8 flex items-center px-2">
+      <div
+        className="pointer-events-none absolute left-0 top-0  w-full"
+        style={{ background: "radial-gradient(circle at top left, var(--accent-soft) 0%, transparent 72%)" }}
+      />
+
+      <div className="relative flex h-full w-full flex-col px-4 pb-6 pt-10">
+        <div className="mb-8 flex items-center gap-3 px-2">
           <div
-            className="accent-halo flex h-11 w-11 items-center justify-center rounded-2xl shadow-tonal"
-            style={{ backgroundColor: 'var(--surface-alt)', color: 'var(--accent)' }}
+            className="flex h-11 w-11 items-center justify-center rounded-full shadow-tonal"
+            style={{ background: "linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 45%, white) 100%)", color: "var(--background)" }}
           >
-            <GraduationCap size={24} />
+            <GraduationCap size={22} />
           </div>
-          <div className="ml-3">
-            <div className="text-xl font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
+          <div>
+            <div className="text-sm font-black uppercase tracking-[0.22em]" style={{ color: "var(--accent)" }}>
               Socratic AI
             </div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.24em]" style={{ color: 'var(--muted)' }}>
-              Guided Learning
+            <div className="text-[10px] font-medium uppercase tracking-[0.18em]" style={{ color: "var(--muted)" }}>
+              Guided learner
             </div>
           </div>
         </div>
 
-        <nav className="flex flex-1 flex-col space-y-2">
-          {navItems.map((item, index) => {
+        <nav className="space-y-1">
+          {navItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  'interactive-card reveal-up flex items-center rounded-2xl px-4 py-3 text-sm font-medium',
-                  index === 0 && 'stagger-1',
-                  index === 1 && 'stagger-2',
-                  index === 2 && 'stagger-3'
-                )}
+                className="nav-pill flex items-center gap-3 rounded-r-full px-4 py-3 text-sm font-medium transition-all duration-300"
                 style={{
-                  background: active ? 'linear-gradient(135deg, var(--accent-soft), transparent)' : 'transparent',
-                  color: active ? 'var(--foreground)' : 'var(--muted)',
-                  border: `1px solid ${active ? 'color-mix(in srgb, var(--accent) 42%, var(--border))' : 'transparent'}`,
+                  color: active ? "var(--foreground)" : "var(--muted)",
+                  background: active ? "linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent)" : "transparent",
+                  borderLeft: active ? "3px solid var(--accent)" : "3px solid transparent",
                 }}
               >
-                <item.icon className={cn('mr-3 h-5 w-5 transition-transform duration-200', active && 'scale-110')} />
-                <span className="flex-1">{item.name}</span>
-                {active && <div className="h-2 w-2 rounded-full soft-pulse" style={{ backgroundColor: 'var(--accent)' }} />}
+                <item.icon size={18} style={{ color: active ? "var(--accent)" : "currentColor" }} />
+                <span>{item.name}</span>
               </Link>
             );
           })}
-
-          <div className="pt-4">
-            <p
-              className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.24em]"
-              style={{ color: 'var(--muted)', opacity: 0.7 }}
-            >
-              Learn
-            </p>
-            <div className="space-y-2">
-              <Link
-                href="/learn"
-                className="interactive-card flex items-center rounded-2xl px-4 py-3 text-sm font-medium"
-                style={{
-                  background: isLearnActive && pathname === '/learn' ? 'linear-gradient(135deg, var(--accent-soft), transparent)' : 'transparent',
-                  color: isLearnActive && pathname === '/learn' ? 'var(--foreground)' : 'var(--muted)',
-                  border: `1px solid ${isLearnActive && pathname === '/learn' ? 'color-mix(in srgb, var(--accent) 42%, var(--border))' : 'transparent'}`,
-                }}
-              >
-                <BookOpen className="mr-3 h-5 w-5" />
-                Overview
-              </Link>
-
-              <div className="ml-4 mt-2 space-y-1 rounded-2xl pl-4" style={{ borderLeft: '1px solid color-mix(in srgb, var(--accent) 22%, var(--border))' }}>
-                {subjects.map((subject) => {
-                  const href = `/learn/${subject.slug}`;
-                  const active = isActive(href);
-                  return (
-                    <Link
-                      key={subject.slug}
-                      href={href}
-                      className="interactive-card flex items-center rounded-xl px-3 py-2 text-xs font-medium"
-                      style={{
-                        color: active ? 'var(--foreground)' : 'var(--muted)',
-                        backgroundColor: active ? 'var(--accent-soft)' : 'transparent',
-                      }}
-                    >
-                      <ChevronRight className={cn('mr-1 h-3 w-3 transition-transform duration-200', active ? 'translate-x-0' : '-translate-x-1 opacity-0')} />
-                      {subject.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4">
-            <p
-              className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.24em]"
-              style={{ color: 'var(--muted)', opacity: 0.7 }}
-            >
-              System
-            </p>
-            <Link
-              href="/settings"
-              className="interactive-card flex items-center rounded-2xl px-4 py-3 text-sm font-medium"
-              style={{
-                background: isActive('/settings') ? 'linear-gradient(135deg, var(--accent-soft), transparent)' : 'transparent',
-                color: isActive('/settings') ? 'var(--foreground)' : 'var(--muted)',
-                border: `1px solid ${isActive('/settings') ? 'color-mix(in srgb, var(--accent) 42%, var(--border))' : 'transparent'}`,
-              }}
-            >
-              <Settings className="mr-3 h-5 w-5" />
-              Settings
-            </Link>
-          </div>
         </nav>
 
-        <div className="panel-muted mt-auto rounded-2xl p-4 accent-halo">
-          <div className="flex items-center space-x-3">
-            <div className="h-2.5 w-2.5 rounded-full soft-pulse" style={{ backgroundColor: 'var(--accent)' }} />
-            <div>
-              <div className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>
-                Socratic Engine Online
+
+        <div className="mt-auto space-y-1 px-2 pb-4">
+          {bottomItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="nav-pill flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:text-[var(--foreground)]"
+              style={{ color: "var(--muted)" }}
+            >
+              <item.icon size={18} />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+
+          {user && (
+            <Link
+              href="/profile"
+              className="mt-4 flex w-fit items-center gap-3 rounded-full py-2 pl-2 pr-5 transition-all hover:bg-[var(--surface-alt)]"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-black text-[var(--background)]">
+                {user.name.charAt(0).toUpperCase()}
               </div>
-              <div className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--muted)' }}>
-                Stable and responsive
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <div className="truncate text-xs font-black uppercase tracking-wider" style={{ color: "var(--foreground)" }}>
+                  {user.name}
+                </div>
+                <div className="truncate text-[9px] uppercase tracking-widest" style={{ color: "var(--muted)" }}>
+                  View Profile
+                </div>
               </div>
-            </div>
-          </div>
+            </Link>
+          )}
         </div>
       </div>
     </aside>

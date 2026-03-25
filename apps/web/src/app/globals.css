@@ -22,6 +22,7 @@
   --foreground: #ecf2ff;
   --muted: #8a96af;
   --accent: #8fd3ff;
+  --secondary: color-mix(in srgb, var(--accent) 62%, #44e2cd);
   --accent-soft: rgba(143, 211, 255, 0.18);
   --border: #31405a;
 }
@@ -108,6 +109,14 @@ body {
   transform: translateY(-1px) scale(0.995);
 }
 
+.pressable {
+  transition: transform 160ms ease, filter 180ms ease;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
 .button-accent {
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--accent) 92%, white 8%) 0%, color-mix(in srgb, var(--accent) 76%, var(--surface-alt)) 100%);
@@ -142,6 +151,36 @@ body {
   border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
 }
 
+.nav-pill {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 20%, transparent), transparent);
+  transition: width 220ms ease;
+  pointer-events: none;
+}
+
+.nav-pill:hover::after {
+  width: 100%;
+}
+
+.focus-ring {
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
 .accent-halo {
   position: relative;
   overflow: hidden;
@@ -167,6 +206,76 @@ body {
 
 .reveal-up {
   animation: reveal-up 420ms ease both;
+}
+
+.message-pop {
+  animation: message-pop 360ms cubic-bezier(0.17, 0.84, 0.44, 1) both;
+}
+
+.shutter-drop {
+  transform-origin: top center;
+  animation: shutter-drop 640ms cubic-bezier(0.14, 0.84, 0.26, 1.12) both;
+}
+
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, color-mix(in srgb, white 12%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 600ms ease;
+  pointer-events: none;
+}
+
+.shimmer-sweep:hover::before {
+  transform: translateX(120%);
+}
+
+.ghost-cursor {
+  will-change: transform, opacity;
+}
+
+.ghost-shell {
+  position: relative;
+  transform: translate(-50%, -50%) rotate(var(--ghost-tilt, 0deg)) scale(var(--ghost-scale, 1));
+  transition: transform 120ms ease;
+}
+
+.ghost-aura {
+  position: absolute;
+  inset: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 50%, white) 0%, transparent 70%);
+  filter: blur(10px);
+  animation: ghost-glow-pulse 1.9s ease-in-out infinite;
+}
+
+.ghost-svg {
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 8px 14px color-mix(in srgb, var(--accent) 20%, black));
+}
+
+.ghost-eye {
+  fill: #2f2640;
+  transform-origin: center;
+  animation: ghost-eye-blink 3.2s ease-in-out infinite;
+}
+
+.ghost-mouth {
+  stroke: #5f3f85;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.ghost-blush {
+  fill: color-mix(in srgb, var(--accent) 35%, #ff9bcf);
+  opacity: 0.75;
 }
 
 .stagger-1 {
@@ -205,6 +314,32 @@ body {
   }
 }
 
+.glass-panel {
+  background: color-mix(in srgb, var(--surface-alt) 60%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--border) 10%, transparent);
+}
+
+.ai-orb-glow {
+  background: radial-gradient(circle, var(--secondary) 0%, var(--accent) 100%);
+  filter: blur(15px);
+  opacity: 0.6;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--surface-alt);
+  border-radius: 10px;
+}
+
 @keyframes reveal-up {
   from {
     opacity: 0;
@@ -213,5 +348,64 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes message-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ghost-eye-blink {
+  0%, 44%, 46%, 100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.14);
+  }
+}
+
+@keyframes ghost-glow-pulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shutter-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-110%) scaleY(1.08);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(10px) scaleY(0.98);
+  }
+  75% {
+    transform: translateY(-4px) scaleY(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
