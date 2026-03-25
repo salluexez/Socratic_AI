@@ -85,12 +85,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                                   TextSpan(
                                     text: 'Profile',
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: palette.text,
-                                      height: 1.0,
-                                    ),
+                                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                          height: 1.0,
+                                        ),
                                   ),
                           ],
                         ),

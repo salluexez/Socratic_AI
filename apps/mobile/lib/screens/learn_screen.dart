@@ -48,12 +48,11 @@ class _LearnScreenState extends State<LearnScreen> {
             const SizedBox(height: 18),
             Text(
               'Where shall your curiosity lead today?',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: palette.text,
-                height: 1.2,
-              ),
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: palette.text,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -81,7 +80,7 @@ class _LearnScreenState extends State<LearnScreen> {
                         crossAxisCount: isCompact ? 1 : 2,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
-                        mainAxisExtent: isCompact ? 200 : 210,
+                        mainAxisExtent: isCompact ? 145 : 155,
                       ),
                       itemBuilder: (context, index) {
                         final subject = subjects[index];
@@ -100,13 +99,18 @@ class _LearnScreenState extends State<LearnScreen> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: palette.surfaceCard,
-                borderRadius: BorderRadius.circular(30),
-                border: isDark ? Border.all(color: palette.outline, width: 1) : null,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? palette.outline : palette.outline.withOpacity(0.5),
+                  width: 1,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: isDark ? Colors.black.withOpacity(0.15) : palette.text.withOpacity(0.05),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: isDark 
+                        ? Colors.black.withOpacity(0.3) 
+                        : palette.text.withOpacity(0.06),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

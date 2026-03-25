@@ -97,12 +97,11 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
             child: Text(
               'Intellectual Circles',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: palette.text,
-                height: 1.2,
-              ),
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: palette.text,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
           Container(
@@ -160,78 +159,106 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
       itemCount: sessions.length,
       itemBuilder: (context, index) {
         final session = sessions[index];
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         final ownerName = session.ownerName ?? 'Unknown';
         final formattedDate = session.updatedAt != null 
             ? DateFormat('MMM d, yyyy').format(session.updatedAt!)
             : 'Recently';
 
-        Widget card = Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 0,
-          color: context.palette.surfaceLow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: context.palette.outline.withOpacity(0.5)),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            onTap: () => _handleSessionTap(session, isSharedByMe),
-            title: Text(
-              session.displayTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+        Widget card = Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: context.palette.surfaceCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? context.palette.outline : context.palette.outline.withOpacity(0.5),
+              width: 1,
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Row(
+            boxShadow: [
+              BoxShadow(
+                color: isDark 
+                    ? Colors.black.withOpacity(0.3) 
+                    : context.palette.text.withOpacity(0.06),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _handleSessionTap(session, isSharedByMe),
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    Icon(
-                      isSharedByMe ? Icons.share_rounded : Icons.person_outline_rounded,
-                      size: 14,
-                      color: context.palette.textMuted,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            session.displayTitle,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              color: context.palette.text,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(
+                                isSharedByMe ? Icons.share_rounded : Icons.person_outline_rounded,
+                                size: 14,
+                                color: context.palette.textMuted,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                isSharedByMe 
+                                  ? 'Shared with ${session.collaborators.length} users'
+                                  : 'Shared by $ownerName',
+                                style: TextStyle(color: context.palette.textMuted, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            formattedDate,
+                            style: TextStyle(color: context.palette.textMuted, fontSize: 11),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isSharedByMe 
-                        ? 'Shared with ${session.collaborators.length} users'
-                        : 'Shared by $ownerName',
-                      style: TextStyle(color: context.palette.textMuted, fontSize: 12),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            session.subject.toUpperCase(),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (isSharedByMe && session.collaborators.isNotEmpty) 
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Icon(Icons.manage_accounts_rounded, size: 18, color: context.palette.primaryDim),
+                          ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  formattedDate,
-                  style: TextStyle(color: context.palette.textMuted, fontSize: 11),
-                ),
-              ],
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    session.subject.toUpperCase(),
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (isSharedByMe && session.collaborators.isNotEmpty) 
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Icon(Icons.manage_accounts_rounded, size: 18, color: context.palette.primaryDim),
-                  ),
-              ],
+              ),
             ),
           ),
         );
