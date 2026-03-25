@@ -1,4 +1,4 @@
-package com.example.socratic_ai_mobile
+package com.hiet.socratic_ai
 
 import io.flutter.embedding.android.FlutterActivity
 
