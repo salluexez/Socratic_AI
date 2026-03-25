@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/api_session.dart';
 import '../models/api_user.dart';
@@ -15,12 +15,52 @@ class BackendApiService {
   /// Notifies listeners when data (like sessions) has changed and screens should refresh.
   final ValueNotifier<int> refreshNotifier = ValueNotifier<int>(0);
 
+  static const String _prefCookieKey = 'auth_cookie';
+  static const String _prefUserKey = 'auth_user';
+
   final http.Client _client = http.Client();
   String? _cookie;
   ApiUser? currentUser;
 
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _cookie = prefs.getString(_prefCookieKey);
+    final userJson = prefs.getString(_prefUserKey);
+    if (userJson != null) {
+      try {
+        currentUser = ApiUser.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      } catch (e) {
+        debugPrint('Error loading saved user: $e');
+      }
+    }
+  }
+
   void notifyDataChanged() {
     refreshNotifier.value++;
+  }
+
+  Future<void> _saveSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_cookie != null) {
+      await prefs.setString(_prefCookieKey, _cookie!);
+    } else {
+      await prefs.remove(_prefCookieKey);
+    }
+
+    if (currentUser != null) {
+      await prefs.setString(_prefUserKey, jsonEncode(currentUser!.toJson()));
+    } else {
+      await prefs.remove(_prefUserKey);
+    }
+  }
+
+  Future<void> _clearSession() async {
+    _cookie = null;
+    currentUser = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefCookieKey);
+    await prefs.remove(_prefUserKey);
+    notifyDataChanged();
   }
 
   bool get isConfigured => AppConfig.hasApiBaseUrl;
@@ -107,6 +147,7 @@ class BackendApiService {
     final user =
         ApiUser.fromJson(_parseBody(response)['data'] as Map<String, dynamic>);
     currentUser = user;
+    await _saveSession();
     return user;
   }
 
@@ -128,6 +169,7 @@ class BackendApiService {
     final user =
         ApiUser.fromJson(_parseBody(response)['data'] as Map<String, dynamic>);
     currentUser = user;
+    await _saveSession();
     return user;
   }
 
@@ -165,9 +207,7 @@ class BackendApiService {
     );
 
     if (response.statusCode != 200) _throwApiError(response);
-    _cookie = null;
-    currentUser = null;
-    notifyDataChanged();
+    await _clearSession();
   }
 
   Future<void> logout() async {
@@ -177,8 +217,7 @@ class BackendApiService {
     );
 
     if (response.statusCode != 200) _throwApiError(response);
-    _cookie = null;
-    currentUser = null;
+    await _clearSession();
   }
 
   Future<ApiSession> createSession({

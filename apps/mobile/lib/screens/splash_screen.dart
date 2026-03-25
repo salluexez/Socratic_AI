@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../services/app_config.dart';
 import 'onboarding_screen.dart';
+import 'home_shell.dart';
+import '../services/backend_api_service.dart';
 
 class SplashScreen extends StatefulWidget {
   static const routeName = '/splash';
@@ -42,7 +44,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _navigateToNext() async {
     await Future.delayed(const Duration(milliseconds: 2500));
     if (mounted) {
-      Navigator.pushReplacementNamed(context, OnboardingScreen.routeName);
+      if (BackendApiService.instance.isAuthenticated) {
+        Navigator.pushReplacementNamed(context, HomeShell.routeName);
+      } else {
+        Navigator.pushReplacementNamed(context, OnboardingScreen.routeName);
+      }
     }
   }
 

@@ -19,4 +19,13 @@ class ApiUser {
       notificationsEnabled: json['notificationsEnabled'] ?? true,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'notificationsEnabled': notificationsEnabled,
+    };
+  }
 }
