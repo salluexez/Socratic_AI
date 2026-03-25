@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { UserModel } from '../models/User';
+import { ChatModel } from '../models/Chat';
 import { signToken } from '../utils/jwt';
 import bcrypt from 'bcrypt';
 
@@ -83,5 +84,27 @@ export const updateMe = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Server error during profile update' });
+  }
+};
+
+export const deleteMe = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+
+  try {
+    // Delete all chats associated with the user
+    await ChatModel.deleteMany({ userId: user._id });
+
+    // Delete the user record
+    await UserModel.findByIdAndDelete(user._id);
+
+    // Clear the auth cookie
+    res.clearCookie('token');
+
+    res.json({
+      success: true,
+      message: 'Account and associated data deleted successfully',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Server error during account deletion' });
   }
 };

@@ -158,6 +158,18 @@ class BackendApiService {
     return user;
   }
 
+  Future<void> deleteMe() async {
+    final response = await _client.delete(
+      _uri('/auth/me'),
+      headers: _headers(),
+    );
+
+    if (response.statusCode != 200) _throwApiError(response);
+    _cookie = null;
+    currentUser = null;
+    notifyDataChanged();
+  }
+
   Future<void> logout() async {
     final response = await _client.post(
       _uri('/auth/logout'),

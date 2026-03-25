@@ -39,7 +39,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final themeController = ThemeControllerScope.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     // Derived stats
@@ -218,15 +217,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: _showEditProfileDialog,
                     ),
                     const SizedBox(height: 12),
-
-                    const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.shield_outlined,
                       title: 'Privacy & Security',
                       subtitle: 'Managed shared data',
-                      onTap: () {},
+                      onTap: _showPrivacySheet,
                     ),
-                    const SizedBox(height: 12),
                     const SizedBox(height: 28),
 
                     // Action Group: Support
@@ -338,6 +334,142 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) setState(() => isLoading = false);
       }
     }
+  }
+
+  Future<void> _showPrivacySheet() async {
+    final palette = context.palette;
+    
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        decoration: BoxDecoration(
+          color: palette.surfaceCard,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: palette.primaryDim.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.shield_rounded, color: palette.primaryDim, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  'Privacy & Security',
+                  style: GoogleFonts.inter(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _PrivacyItem(
+              icon: Icons.lock_outline_rounded,
+              title: 'Data Protection',
+              description: 'Your conversations are stored securely. We do not use third-party trackers or sell your information.',
+            ),
+            const SizedBox(height: 16),
+            _PrivacyItem(
+              icon: Icons.share_outlined,
+              title: 'Shared Sessions',
+              description: 'Shared session links are accessible to anyone with the URL. Revoke access anytime from the share menu.',
+            ),
+            const SizedBox(height: 16),
+            _PrivacyItem(
+              icon: Icons.security_outlined,
+              title: 'Infrastructure',
+              description: 'The Socratic-Ai ecosystem uses professional-grade security for all API communications.',
+            ),
+            const SizedBox(height: 32),
+            Divider(color: palette.text.withValues(alpha: 0.05)),
+            const SizedBox(height: 24),
+            Text(
+              'Account Management',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: palette.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _ActionTile(
+              icon: Icons.delete_forever_rounded,
+              title: 'Delete All My Data',
+              subtitle: 'Permanently remove your account and all history',
+              color: Colors.redAccent,
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: palette.surfaceCard,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    title: const Text('Are you absolutely sure?'),
+                    content: const Text('This will permanently delete your account and all chat history. This action cannot be undone.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text('Cancel', style: TextStyle(color: palette.textMuted)),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Yes, Delete Everything'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  if (!context.mounted) return;
+                  Navigator.pop(context); // Close sheet
+                  setState(() => isLoading = true);
+                  try {
+                    await BackendApiService.instance.deleteMe();
+                    if (!mounted) return;
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AuthScreen.routeName,
+                      (route) => false,
+                    );
+                  } catch (e) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error deleting account: $e')),
+                    );
+                  } finally {
+                    if (mounted) setState(() => isLoading = false);
+                  }
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Close', style: TextStyle(color: palette.textMuted, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _loadProfile() async {
@@ -507,6 +639,54 @@ class _ActionTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PrivacyItem extends StatelessWidget {
+  const _PrivacyItem({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: palette.textMuted, size: 20),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: palette.text,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: palette.textMuted,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

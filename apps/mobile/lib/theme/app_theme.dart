@@ -245,9 +245,9 @@ class AppColors {
 }
 
 class AppTheme {
-  static List<ThemeData> get themes => [
-        _theme(brightness: Brightness.light, scaffold: AppPalette.milkshake.surfaceLow, palette: AppPalette.milkshake),
+    static List<ThemeData> get themes => [
         _theme(brightness: Brightness.light, scaffold: AppPalette.modernInk.surfaceLow, palette: AppPalette.modernInk),
+        _theme(brightness: Brightness.light, scaffold: AppPalette.milkshake.surfaceLow, palette: AppPalette.milkshake),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.carbon.surfaceLow, palette: AppPalette.carbon),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.monkey8008.surfaceLow, palette: AppPalette.monkey8008),
         _theme(brightness: Brightness.dark, scaffold: AppPalette.dracula.surfaceLow, palette: AppPalette.dracula),
