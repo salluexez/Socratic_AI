@@ -79,56 +79,73 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              Text(
-                isSignIn ? 'Welcome back' : 'Create your account',
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.2),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+                    child: child,
+                  ),
+                ),
+                child: Text(
+                  isSignIn ? 'Welcome back' : 'Create account',
+                  key: ValueKey(isSignIn),
                   style: GoogleFonts.cookie(
                     textStyle: Theme.of(context).textTheme.displayMedium,
                     fontSize: 48,
                     height: 1.0,
                     color: palette.primaryDim,
                   ),
+                ),
               ),
               const SizedBox(height: 12),
-              Text(
-                'Start your guided learning journey with a calm Socratic companion.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: palette.textMuted,
-                    ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                child: Text(
+                  isSignIn 
+                    ? 'Start your guided learning journey with a calm Socratic companion.'
+                    : 'Join a community of critical thinkers and start your learning journey.',
+                  key: ValueKey(isSignIn),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: palette.textMuted,
+                      ),
+                ),
               ),
-              const SizedBox(height: 10),
-              // Text(
-              //   AppConfig.hasApiBaseUrl
-              //       ? 'Connected to ${AppConfig.apiBaseUrl}'
-              //       : 'Set --dart-define=API_BASE_URL=http://YOUR_SERVER:5000 or http://YOUR_SERVER:5000/api',
-              //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              //         color: AppConfig.hasApiBaseUrl
-              //             ? palette.textMuted
-              //             : Colors.orange,
-              //       ),
-              // ),
               const SizedBox(height: 28),
               _AuthToggle(
                 isSignIn: isSignIn,
                 onChanged: (value) => setState(() => isSignIn = value),
               ),
               const SizedBox(height: 24),
-              if (!isSignIn) ...[
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full name',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
-                  ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: Column(
+                  children: [
+                    if (!isSignIn) ...[
+                      TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Full name',
+                          prefixIcon: Icon(Icons.person_outline_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 16),
-              ],
+              ),
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email_outlined),
+                  prefixIcon: Icon(Icons.email_outlined),
                 ),
               ),
               const SizedBox(height: 16),
@@ -172,10 +189,14 @@ class _AuthScreenState extends State<AuthScreen> {
               Center(
                 child: TextButton(
                   onPressed: () => setState(() => isSignIn = !isSignIn),
-                  child: Text(
-                    isSignIn
-                        ? 'Need an account? Sign Up'
-                        : 'Already have an account? Sign In',
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      isSignIn
+                          ? 'Need an account? Sign Up'
+                          : 'Already have an account? Sign In',
+                      key: ValueKey(isSignIn),
+                    ),
                   ),
                 ),
               ),
@@ -291,28 +312,55 @@ class _AuthToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
+      height: 56,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: palette.surfaceLow,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          Expanded(
-            child: _ToggleButton(
-              label: 'Sign In',
-              isActive: isSignIn,
-              onTap: () => onChanged(true),
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOutBack,
+            alignment: isSignIn ? Alignment.centerLeft : Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: palette.surfaceCard,
+                  borderRadius: BorderRadius.circular(999),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          Expanded(
-            child: _ToggleButton(
-              label: 'Sign Up',
-              isActive: !isSignIn,
-              onTap: () => onChanged(false),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _ToggleButton(
+                  label: 'Sign In',
+                  isActive: isSignIn,
+                  onTap: () => onChanged(true),
+                ),
+              ),
+              Expanded(
+                child: _ToggleButton(
+                  label: 'Sign Up',
+                  isActive: !isSignIn,
+                  onTap: () => onChanged(false),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -334,23 +382,21 @@ class _ToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isActive ? palette.surfaceCard : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: isActive ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : palette.primaryDim) : palette.textMuted,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                ),
-          ),
+      behavior: HitTestBehavior.opaque,
+      child: Center(
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 300),
+          style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                color: isActive 
+                  ? (isDark ? Colors.white : palette.primaryDim) 
+                  : palette.textMuted,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+              ),
+          child: Text(label),
         ),
       ),
     );

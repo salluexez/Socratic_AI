@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/subject.dart';
 import '../services/app_config.dart';
@@ -47,7 +48,12 @@ class _LearnScreenState extends State<LearnScreen> {
             const SizedBox(height: 18),
             Text(
               'Where shall your curiosity lead today?',
-              style: Theme.of(context).textTheme.displayMedium,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: palette.text,
+                height: 1.2,
+              ),
             ),
             const SizedBox(height: 12),
             Text(

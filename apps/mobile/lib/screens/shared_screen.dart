@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../services/backend_api_service.dart';
@@ -90,7 +91,20 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+            child: Text(
+              'Intellectual Circles',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: palette.text,
+                height: 1.2,
+              ),
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TabBar(

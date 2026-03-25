@@ -51,26 +51,12 @@ class _HomeShellState extends State<HomeShell> {
                 ),
               ),
               const SizedBox(width: 12),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Socratic ',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'AI',
-                      style: GoogleFonts.inter(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w300,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
+              Text(
+                'Socratic-Ai',
+                style: GoogleFonts.cookie(
+                  fontSize: 32,
+                  color: palette.primaryDim,
+                  height: 1.0,
                 ),
               ),
             ],

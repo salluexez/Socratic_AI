@@ -83,15 +83,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            TextSpan(
-                              text: 'Profile',
-                              style: GoogleFonts.inter(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w700,
-                                color: palette.text,
-                                letterSpacing: -1.2,
-                              ),
-                            ),
+                                  TextSpan(
+                                    text: 'Profile',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: palette.text,
+                                      height: 1.0,
+                                    ),
+                                  ),
                           ],
                         ),
                       ),
