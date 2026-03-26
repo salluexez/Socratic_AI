@@ -12,10 +12,10 @@ import uvicorn
 
 load_dotenv()
 
-groq_api_key = os.getenv("GROQ_API_KEY")
+groq_api_key = os.getenv("groq_api")
 
 if not groq_api_key:
-    raise ValueError("Please add GROQ_API_KEY in .env file")
+    raise ValueError("Please add GROQ API key in .env file")
 
 client = Groq(api_key=groq_api_key)
 

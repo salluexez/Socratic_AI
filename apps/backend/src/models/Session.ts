@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Session, Message } from '@socratic-ai/types';
+import { Session, Message } from '../types';
 
 export interface ISessionDocument extends Omit<Session, '_id' | 'userId'>, Document {
   userId: mongoose.Types.ObjectId;

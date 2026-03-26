@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { User } from '@socratic-ai/types';
+import { User } from '../types';
 
 export interface IUserDocument extends Omit<User, '_id'>, Document {
   password: string;

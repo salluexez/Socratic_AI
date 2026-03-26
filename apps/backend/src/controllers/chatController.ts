@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ChatModel } from '../models/Chat';
 import { UserModel } from '../models/User';
 
-const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:8000';
+const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL;
 
 // Start or resume a chat for a subject
 export const startChat = async (req: Request, res: Response) => {
