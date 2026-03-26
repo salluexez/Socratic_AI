@@ -255,7 +255,7 @@ All protected routes require `Authorization: Bearer <token>` header.
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/auth/signup` | Register new user. Returns `{ token, user }`. |
-| POST | `/api/auth/signin` | Login. Returns `{ token, user }`. |
+| POST | `/api/auth/signin` | signin. Returns `{ token, user }`. |
 | POST | `/api/auth/logout` | Logout (optional token blacklist). |
 | GET | `/api/auth/me` | Get current user from JWT (protected). |
 

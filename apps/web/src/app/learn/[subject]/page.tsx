@@ -96,7 +96,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login");
+      router.push("/signin");
     }
   }, [user, authLoading, router]);
 

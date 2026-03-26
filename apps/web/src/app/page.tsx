@@ -109,8 +109,8 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link href="/login" className="button-ghost rounded-full px-5 py-2.5 text-base font-semibold" style={{ color: "var(--foreground)" }}>
-                Login
+              <Link href="/signin" className="button-ghost rounded-full px-5 py-2.5 text-base font-semibold" style={{ color: "var(--foreground)" }}>
+                signin
               </Link>
               <Link href="/signup" className="button-accent rounded-full px-6 py-2.5 text-base font-black tracking-wide">
                 Start Free

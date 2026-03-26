@@ -27,7 +27,7 @@ export default function SharedTopicsPage() {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login");
+    if (!loading && !user) router.push("/signin");
   }, [user, loading, router]);
 
   const fetchSessions = useCallback(async () => {

@@ -14,7 +14,7 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [hydrate]);
 
   // Define paths where Sidebar should NOT be shown
-  const authPaths = ['/login', '/signup', '/signin'];
+  const authPaths = ['/signin', '/signup', '/signin'];
   const chatPaths = ['/learn/'];
   const landingPaths = ['/'];
   const showSidebar = !authPaths.some(path => pathname?.startsWith(path)) &&

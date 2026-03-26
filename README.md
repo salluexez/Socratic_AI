@@ -164,7 +164,7 @@ The web frontend lives in `apps/web` and uses:
 Main areas include:
 
 - homepage
-- login / signup
+- signin / signup
 - dashboard
 - learn overview
 - subject chat pages

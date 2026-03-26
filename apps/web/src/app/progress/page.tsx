@@ -64,7 +64,7 @@ export default function ProgressPage() {
   }, [checkAuth, hydrate]);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login");
+    if (!loading && !user) router.push("/signin");
   }, [user, loading, router]);
 
   if (loading || !user || !statsData) {

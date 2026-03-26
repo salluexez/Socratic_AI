@@ -34,7 +34,7 @@ export default function ProfilePage() {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login");
+    if (!loading && !user) router.push("/signin");
   }, [user, loading, router]);
 
   if (loading || !user) {
@@ -47,7 +47,7 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     logout();
-    router.push("/login");
+    router.push("/signin");
   };
 
   const toggleSubject = async (slug: string) => {

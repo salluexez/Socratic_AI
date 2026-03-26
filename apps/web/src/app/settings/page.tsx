@@ -99,7 +99,7 @@ export default function SettingsPage() {
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login");
+    if (!loading && !user) router.push("/signin");
   }, [user, loading, router]);
 
   const handleSave = async () => {

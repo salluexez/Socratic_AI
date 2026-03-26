@@ -62,7 +62,7 @@ export default function AuthContainer() {
       const message = axios.isAxiosError(err)
         ? err.response?.data?.error
         : undefined;
-      setError(message || `${mode === "signin" ? "Login" : "Signup"} failed.`);
+      setError(message || `${mode === "signin" ? "signin" : "Signup"} failed.`);
     }
   };
 
@@ -153,7 +153,7 @@ export default function AuthContainer() {
             <AuthTabs
               activeTab={mode}
               onChange={(nextMode) => {
-                router.push(nextMode === "signup" ? "/signup" : "/login");
+                router.push(nextMode === "signup" ? "/signup" : "/signin");
               }}
             />
 
