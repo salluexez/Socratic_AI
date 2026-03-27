@@ -124,6 +124,12 @@ export default function DashboardPage() {
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b px-3 py-2.5 sm:px-6 sm:py-4 lg:px-8 slide-down-enter" style={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }}>
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src="/bhutu.jpeg" 
+            alt="Socratic AI" 
+            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover shadow-sm flex-shrink-0"
+          />
           <div className="min-w-0">
             <div className="text-base sm:text-xl font-black uppercase tracking-[-0.04em] truncate" style={{ color: "var(--foreground)" }}>
               Socratic <span style={{ color: "var(--accent)" }}>AI</span>
@@ -434,17 +440,6 @@ export default function DashboardPage() {
         </section>
       </div>
 
-      <nav className="safe-bottom fixed bottom-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-4 sm:gap-6 rounded-full px-4 sm:px-6 py-3 sm:py-4 glass lg:hidden mobile-tap-feedback slide-up-enter">
-        <Link href="/dashboard" style={{ color: "var(--accent)" }} className="transition-colors">
-          <Sparkles size={20} />
-        </Link>
-        <Link href="/learn" style={{ color: "var(--muted)" }} className="transition-colors hover:text-[var(--foreground)]">
-          <BookOpen size={20} />
-        </Link>
-        <Link href="/progress" style={{ color: "var(--muted)" }} className="transition-colors hover:text-[var(--foreground)]">
-          <History size={20} />
-        </Link>
-      </nav>
       </main>
     </div>
   );

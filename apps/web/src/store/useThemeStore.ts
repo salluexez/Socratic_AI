@@ -240,6 +240,57 @@ export const themes: Record<string, ThemePalette> = {
     cardGlow: 'rgba(230, 182, 115, 0.28)',
     cardPattern: 'mesh',
   },
+  githubDark: {
+    key: 'githubDark',
+    name: 'GitHub Dark',
+    scheme: 'dark',
+    background: '#010409',
+    surface: '#0d1117',
+    surfaceAlt: '#161b22',
+    foreground: '#c9d1d9',
+    muted: '#8b949e',
+    accent: '#58a6ff',
+    secondary: '#3fb950',
+    accentSoft: 'rgba(88, 166, 255, 0.12)',
+    border: '#30363d',
+    cardBase: '#0d1117',
+    cardGlow: 'rgba(88, 166, 255, 0.25)',
+    cardPattern: 'grid',
+  },
+  githubDimmed: {
+    key: 'githubDimmed',
+    name: 'GitHub Dimmed',
+    scheme: 'dark',
+    background: '#22272e',
+    surface: '#2d333b',
+    surfaceAlt: '#373e47',
+    foreground: '#adbac7',
+    muted: '#768390',
+    accent: '#539bf5',
+    secondary: '#57ab5a',
+    accentSoft: 'rgba(83, 155, 245, 0.15)',
+    border: '#444c56',
+    cardBase: '#22272e',
+    cardGlow: 'rgba(83, 155, 245, 0.3)',
+    cardPattern: 'mesh',
+  },
+  githubLight: {
+    key: 'githubLight',
+    name: 'GitHub Light',
+    scheme: 'light',
+    background: '#ffffff',
+    surface: '#f6f8fa',
+    surfaceAlt: '#eff2f5',
+    foreground: '#1f2328',
+    muted: '#656d76',
+    accent: '#0969da',
+    secondary: '#1a7f37',
+    accentSoft: 'rgba(9, 105, 218, 0.12)',
+    border: '#d0d7de',
+    cardBase: '#f6f8fa',
+    cardGlow: 'rgba(9, 105, 218, 0.2)',
+    cardPattern: 'paper',
+  },
 };
 
 interface ThemeState {
@@ -263,7 +314,7 @@ function applyTheme(palette: ThemePalette) {
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  activeTheme: 'auroraGrid',
+  activeTheme: 'githubDark',
   setTheme: (key: string) => {
     const palette = themes[key];
     if (!palette) return;
@@ -272,8 +323,8 @@ export const useThemeStore = create<ThemeState>((set) => ({
     set({ activeTheme: key });
   },
   hydrate: () => {
-    const stored = localStorage.getItem('socratic-theme') || 'auroraGrid';
-    const palette = themes[stored] || themes.auroraGrid;
+    const stored = localStorage.getItem('socratic-theme') || 'githubDark';
+    const palette = themes[stored] || themes.githubDark;
     applyTheme(palette);
     set({ activeTheme: palette.key });
   },

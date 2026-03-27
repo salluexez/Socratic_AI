@@ -49,7 +49,12 @@ export const Sidebar = () => {
             className="flex h-10 md:h-11 w-10 md:w-11 items-center justify-center rounded-full shadow-tonal flex-shrink-0"
             style={{ background: "linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 45%, white) 100%)", color: "var(--background)" }}
           >
-            <GraduationCap size={20} className="md:w-5.5 md:h-5.5" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/bhutu.jpeg" 
+              alt="Socratic AI" 
+              className="h-full w-full rounded-full object-cover shadow-sm"
+            />
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-xs md:text-sm font-black uppercase tracking-[0.22em] truncate" style={{ color: "var(--accent)" }}>

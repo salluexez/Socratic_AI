@@ -10,7 +10,8 @@ import {
   ArrowLeft,
   Flame,
   Search,
-  Check
+  Check,
+  Settings
 } from "lucide-react";
 import api from "@/lib/api";
 import subjectsData from "@/data/subjects.json";
@@ -83,18 +84,28 @@ export default function ProfilePage() {
             <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
           </Link>
           <div className="text-base sm:text-xl font-bold tracking-tight truncate" style={{ color: 'var(--foreground)' }}>
-            User <span style={{ color: 'var(--accent)' }}>Settings</span>
+            Profile <span style={{ color: 'var(--accent)' }}>Overview</span>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-2 text-xs sm:text-sm font-bold transition-all hover:bg-[var(--surface)] mobile-tap-feedback flex-shrink-0"
-          style={{ color: '#E06C75' }}
-        >
-          <LogOut size={16} className="sm:w-4.5 sm:h-4.5" />
-          <span className="hidden sm:inline">Sign Out</span>
-        </button>
-      </header>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/settings"
+            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all hover:bg-[var(--surface-alt)] mobile-tap-feedback flex-shrink-0"
+            style={{ color: 'var(--muted)' }}
+          >
+            <Settings size={18} />
+            <span className="hidden sm:inline">Settings</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 sm:gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all hover:bg-[var(--surface-alt)] mobile-tap-feedback flex-shrink-0"
+            style={{ color: '#E06C75' }}
+          >
+            <LogOut size={18} />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
+        </div>
+    </header>
 
       <main className="mx-auto w-full max-w-6xl px-3 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10 lg:gap-12">

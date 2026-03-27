@@ -289,13 +289,6 @@ export default function ProgressPage() {
           </div>
         </section>
       </main>
-
-      <nav className="safe-bottom fixed bottom-3 left-1/2 z-50 flex -translate-x-1/2 items-center gap-8 rounded-full border border-[var(--border)] px-6 py-4 glass shadow-2xl md:hidden">
-        <Link href="/dashboard" style={{ color: 'var(--muted)' }}><LayoutDashboard size={20} /></Link>
-        <Link href="/learn" style={{ color: 'var(--accent)' }}><BookOpen size={20} /></Link>
-        <Link href="/progress" style={{ color: 'var(--accent)' }}><Activity size={20} /></Link>
-        <Link href="/profile" style={{ color: 'var(--muted)' }}><History size={20} /></Link>
-      </nav>
     </div>
   );
 }
