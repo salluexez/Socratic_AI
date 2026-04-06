@@ -204,7 +204,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_error!, style: TextStyle(color: Colors.red)),
+                      Text(_error!, style: const TextStyle(color: Colors.red)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => _fetchSessions(showLoading: true),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import '../services/app_config.dart';
 import 'onboarding_screen.dart';
 import 'home_shell.dart';
 import '../services/backend_api_service.dart';

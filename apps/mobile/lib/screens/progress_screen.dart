@@ -127,7 +127,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'You have completed ${sessions.length} sessions across ${subjectCounts.length} subjects with ${totalHours} total focus hours.',
+                                'You have completed ${sessions.length} sessions across ${subjectCounts.length} subjects with $totalHours total focus hours.',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyLarge

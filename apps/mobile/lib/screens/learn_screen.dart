@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/subject.dart';
-import '../services/app_config.dart';
-import '../services/backend_api_service.dart';
-import '../services/subject_catalog.dart';
 import '../theme/app_theme.dart';
 import '../widgets/subject_card.dart';
 import '../controllers/course_controller.dart';

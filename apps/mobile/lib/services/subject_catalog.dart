@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../models/subject.dart';
-import '../theme/app_theme.dart';
 
 class SubjectCatalog {
   static const subjects = <Subject>[

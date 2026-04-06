@@ -4,7 +4,7 @@ import '../models/subject.dart';
 import '../services/subject_catalog.dart';
 
 class CourseController extends ValueNotifier<List<String>> {
-  CourseController(List<String> initialSlugs) : super(initialSlugs);
+  CourseController(super.initialSlugs);
 
   static const String _coursesKey = 'selected_courses';
 

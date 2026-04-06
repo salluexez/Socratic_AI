@@ -399,7 +399,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
                             backgroundColor: AppColors.primary.withOpacity(0.1),
                             child: Text(
                               hasName ? collab.name![0].toUpperCase() : '?',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                             ),
                           ),
                           title: Text(collab.name ?? 'Unknown User'),

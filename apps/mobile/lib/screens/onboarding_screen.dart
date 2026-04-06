@@ -114,8 +114,8 @@ class OnboardingScreen extends StatelessWidget {
                                               color: Colors.white,
                                             ),
                                           ),
-                                          SizedBox(width: 8),
-                                          Text('Thinking +12'),
+                                          const SizedBox(width: 8),
+                                          const Text('Thinking +12'),
                                         ],
                                       ),
                                     ),
@@ -142,7 +142,7 @@ class OnboardingScreen extends StatelessWidget {
                                     ),
                           ),
                           const SizedBox(height: 16),
-                          Wrap(
+                          const Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: [

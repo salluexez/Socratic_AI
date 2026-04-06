@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeController extends ValueNotifier<int> {
-  ThemeController(int initialIndex) : super(initialIndex);
+  ThemeController(super.initialIndex);
 
   static const String _themeKey = 'theme_index';
 

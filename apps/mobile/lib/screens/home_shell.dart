@@ -7,7 +7,6 @@ import 'progress_screen.dart';
 import 'shared_screen.dart';
 import '../theme/theme_controller.dart';
 import '../theme/app_theme.dart';
-import '../services/app_config.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});

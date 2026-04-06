@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   shape: BoxShape.circle,
                                   border: Border.all(color: palette.surfaceLow, width: 3),
                                 ),
-                                child: Icon(Icons.edit_rounded, 
+                                child: const Icon(Icons.edit_rounded, 
                                   color: Colors.white, size: 16),
                               ),
                             ],
@@ -193,11 +193,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: const Color(0xFF00BFA5),
                           ),
                           _StatDivider(palette: palette),
-                          _VerticalStat(
+                          const _VerticalStat(
                             icon: Icons.local_fire_department_rounded,
                             value: '4', // Mock streak
                             label: 'Streak',
-                            color: const Color(0xFFFF9100),
+                            color: Color(0xFFFF9100),
                           ),
                         ],
                       ),
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 32),
 
                     // Action Group: Account
-                    _SectionHeader(title: 'Account Settings'),
+                    const _SectionHeader(title: 'Account Settings'),
                     const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.person_outline_rounded,
@@ -223,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 28),
 
                     // Action Group: Support
-                    _SectionHeader(title: 'General'),
+                    const _SectionHeader(title: 'General'),
                     const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.explore_rounded,
@@ -372,19 +372,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            _PrivacyItem(
+            const _PrivacyItem(
               icon: Icons.lock_outline_rounded,
               title: 'Data Protection',
               description: 'Your conversations are stored securely. We do not use third-party trackers or sell your information.',
             ),
             const SizedBox(height: 16),
-            _PrivacyItem(
+            const _PrivacyItem(
               icon: Icons.share_outlined,
               title: 'Shared Sessions',
               description: 'Shared session links are accessible to anyone with the URL. Revoke access anytime from the share menu.',
             ),
             const SizedBox(height: 16),
-            _PrivacyItem(
+            const _PrivacyItem(
               icon: Icons.security_outlined,
               title: 'Infrastructure',
               description: 'The Socratic-Ai ecosystem uses professional-grade security for all API communications.',
