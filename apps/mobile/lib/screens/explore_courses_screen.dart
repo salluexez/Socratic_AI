@@ -29,7 +29,7 @@ class ExploreCoursesScreen extends StatelessWidget {
               height: 1,
               indent: 72,
               endIndent: 24,
-              color: palette.outline.withOpacity(0.5),
+              color: palette.outline.withValues(alpha: 0.5),
             ),
             itemBuilder: (context, index) {
               final subject = allSubjects[index];
@@ -42,7 +42,7 @@ class ExploreCoursesScreen extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: subject.accent.withOpacity(0.1),
+                    color: subject.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

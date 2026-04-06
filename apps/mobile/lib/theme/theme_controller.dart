@@ -14,8 +14,8 @@ class ThemeController extends ValueNotifier<int> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_themeKey, nextIndex);
-    } catch (_) {
-      debugPrint('Error saving theme: $_');
+    } catch (e) {
+      debugPrint('Error saving theme: $e');
     }
   }
   
@@ -23,8 +23,8 @@ class ThemeController extends ValueNotifier<int> {
     try {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getInt(_themeKey) ?? 0;
-    } catch (_) {
-      debugPrint('Error loading theme: $_');
+    } catch (e) {
+      debugPrint('Error loading theme: $e');
       return 0;
     }
   }

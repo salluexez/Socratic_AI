@@ -102,10 +102,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           decoration: BoxDecoration(
                             gradient: palette.primaryGradient,
                             borderRadius: BorderRadius.circular(32),
-                            border: isDark ? Border.all(color: Colors.white.withOpacity(0.1), width: 1) : null,
+                            border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1) : null,
                             boxShadow: [
                               BoxShadow(
-                                color: palette.primaryDim.withOpacity(isDark ? 0.3 : 0.2),
+                                color: palette.primaryDim.withValues(alpha: isDark ? 0.3 : 0.2),
                                 blurRadius: 24,
                                 offset: const Offset(0, 12),
                               ),
@@ -133,7 +133,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                     .bodyLarge
                                     ?.copyWith(
                                       color:
-                                          Colors.white.withOpacity(0.85),
+                                          Colors.white.withValues(alpha: 0.85),
                                       fontWeight: FontWeight.w500,
                                       height: 1.4,
                                     ),
@@ -197,7 +197,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                             borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                color: palette.text.withOpacity(0.03),
+                                color: palette.text.withValues(alpha: 0.03),
                                 blurRadius: 15,
                                 offset: const Offset(0, 6),
                               ),
@@ -373,7 +373,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                   borderRadius: BorderRadius.circular(24),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: palette.text.withOpacity(0.02),
+                                      color: palette.text.withValues(alpha: 0.02),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -385,7 +385,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
                                         color: palette.primaryDim
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: Icon(

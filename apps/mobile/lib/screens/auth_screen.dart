@@ -62,7 +62,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: palette.primaryDim.withOpacity(0.2),
+                        color: palette.primaryDim.withValues(alpha: 0.2),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -311,7 +311,6 @@ class _AuthToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 56,
@@ -334,7 +333,7 @@ class _AuthToggle extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -381,7 +380,6 @@ class _ToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: onTap,

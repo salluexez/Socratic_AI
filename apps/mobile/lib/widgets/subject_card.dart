@@ -28,14 +28,14 @@ class SubjectCard extends StatelessWidget {
             color: palette.surfaceCard,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? palette.outline : palette.outline.withOpacity(0.5), 
+              color: isDark ? palette.outline : palette.outline.withValues(alpha: 0.5), 
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isDark 
-                    ? Colors.black.withOpacity(0.3) 
-                    : palette.text.withOpacity(0.06),
+                    ? Colors.black.withValues(alpha: 0.3) 
+                    : palette.text.withValues(alpha: 0.06),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -52,7 +52,7 @@ class SubjectCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: subject.accent.withOpacity(0.12),
+                      color: subject.accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
@@ -97,7 +97,7 @@ class SubjectCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: subject.accent.withOpacity(0.1),
+                        color: subject.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -115,13 +115,13 @@ class SubjectCard extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isDark 
-                          ? palette.outline.withOpacity(0.2) 
-                          : palette.outline.withOpacity(0.3),
+                          ? palette.outline.withValues(alpha: 0.2) 
+                          : palette.outline.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.arrow_forward_rounded,
-                      color: isDark ? palette.text : palette.text.withOpacity(0.8),
+                      color: isDark ? palette.text : palette.text.withValues(alpha: 0.8),
                       size: 14,
                     ),
                   ),

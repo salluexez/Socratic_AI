@@ -427,7 +427,7 @@ class AppTheme {
       textTheme: textTheme,
       extensions: [palette],
       appBarTheme: AppBarTheme(
-        backgroundColor: scaffold.withOpacity(0.92),
+        backgroundColor: scaffold.withValues(alpha: 0.92),
         foregroundColor: palette.text,
         elevation: 0,
         centerTitle: false,
@@ -437,7 +437,7 @@ class AppTheme {
         color: palette.surfaceCard,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shadowColor: isDark ? Colors.black.withOpacity(0.2) : palette.text.withOpacity(0.05),
+        shadowColor: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: isDark ? BorderSide(color: palette.outline, width: 1) : BorderSide.none,
@@ -445,7 +445,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: palette.surfaceCard,
-        indicatorColor: palette.primaryDim.withOpacity(0.1),
+        indicatorColor: palette.primaryDim.withValues(alpha: 0.1),
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -464,7 +464,7 @@ class AppTheme {
           backgroundColor: isDark ? palette.primaryDim : palette.primaryContainer,
           foregroundColor: isDark ? Colors.white : palette.text,
           elevation: isDark ? 8 : 0,
-          shadowColor: isDark ? palette.primaryDim.withOpacity(0.4) : null,
+          shadowColor: isDark ? palette.primaryDim.withValues(alpha: 0.4) : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

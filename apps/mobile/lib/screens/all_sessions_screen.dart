@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../theme/theme_controller.dart';
 import '../models/api_session.dart';
 import '../services/backend_api_service.dart';
 import '../services/subject_catalog.dart';
@@ -256,7 +255,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                             leading: Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: subject.accent.withOpacity(0.1),
+                                color: subject.accent.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(subject.icon, color: subject.accent),

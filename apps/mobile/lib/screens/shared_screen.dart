@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../services/backend_api_service.dart';
@@ -141,7 +140,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.people_outline_rounded, size: 64, color: context.palette.textMuted.withOpacity(0.5)),
+            Icon(Icons.people_outline_rounded, size: 64, color: context.palette.textMuted.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             Text(
               'No shared sessions yet',
@@ -159,7 +158,6 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
       itemCount: sessions.length,
       itemBuilder: (context, index) {
         final session = sessions[index];
-        final isDark = Theme.of(context).brightness == Brightness.dark;
         final ownerName = session.ownerName ?? 'Unknown';
         final formattedDate = session.updatedAt != null 
             ? DateFormat('MMM d, yyyy').format(session.updatedAt!)
@@ -171,14 +169,14 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             color: context.palette.surfaceCard,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: context.isDark ? context.palette.outline : context.palette.outline.withOpacity(0.5),
+              color: context.isDark ? context.palette.outline : context.palette.outline.withValues(alpha: 0.5),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: context.isDark 
-                    ? Colors.black.withOpacity(0.3) 
-                    : context.palette.text.withOpacity(0.06),
+                    ? Colors.black.withValues(alpha: 0.3) 
+                    : context.palette.text.withValues(alpha: 0.06),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -237,7 +235,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -272,7 +270,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
               padding: const EdgeInsets.symmetric(horizontal: 20),
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.red.shade900.withOpacity(0.8),
+                color: Colors.red.shade900.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Icon(Icons.person_remove_rounded, color: Colors.white),
@@ -396,7 +394,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.primary.withOpacity(0.1),
+                            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                             child: Text(
                               hasName ? collab.name![0].toUpperCase() : '?',
                               style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),

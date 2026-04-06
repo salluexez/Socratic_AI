@@ -96,7 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ? ClipRect(
                 child: BackdropFilter(
                   filter: ColorFilter.mode(
-                    palette.surfaceLow.withOpacity(0.8),
+                    palette.surfaceLow.withValues(alpha: 0.8),
                     BlendMode.srcOver,
                   ),
                   child: Container(color: Colors.transparent),
@@ -166,9 +166,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                           right: dotIndex == 2 ? 0 : 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withOpacity(
-                                            0.35 + (dotIndex * 0.2),
-                                          ),
+                                          color: AppColors.primary.withValues(alpha: 0.35 + (dotIndex * 0.2)),
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -197,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.12),
+                    color: Colors.red.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
@@ -236,7 +234,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   border: isDark ? Border(top: BorderSide(color: palette.outline, width: 1)) : null,
                   boxShadow: [
                     BoxShadow(
-                      color: isDark ? Colors.black.withOpacity(0.2) : AppColors.primary.withOpacity(0.04),
+                      color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.04),
                       blurRadius: 24,
                       offset: const Offset(0, -8),
                     ),
@@ -545,7 +543,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.history_rounded, color: AppColors.primary),
@@ -605,7 +603,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             return ListTile(
                               selected: isCurrent,
                               selectedTileColor:
-                                  AppColors.primary.withOpacity(0.08),
+                                  AppColors.primary.withValues(alpha: 0.08),
                               leading: Icon(
                                 Icons.chat_outlined,
                                 color: isCurrent
@@ -638,13 +636,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.edit_outlined, size: 18),
                                     onPressed: () => _renameSession(session),
-                                    color: isCurrent ? AppColors.primary.withOpacity(0.7) : palette.textMuted,
+                                    color: isCurrent ? AppColors.primary.withValues(alpha: 0.7) : palette.textMuted,
                                     tooltip: 'Rename',
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline, size: 18),
                                     onPressed: () => _deleteSession(session.id),
-                                    color: isCurrent ? AppColors.primary.withOpacity(0.7) : Colors.red.withOpacity(0.6),
+                                    color: isCurrent ? AppColors.primary.withValues(alpha: 0.7) : Colors.red.withValues(alpha: 0.6),
                                     tooltip: 'Delete',
                                   ),
                                 ],
