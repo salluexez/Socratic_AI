@@ -26,6 +26,7 @@ export interface Session {
   duration?: number;
   attemptCount: number;
   messages: Message[];
+  collaborators?: { userId: string; access: 'read' | 'write' }[];
   createdAt?: Date;
   updatedAt?: Date;
 }

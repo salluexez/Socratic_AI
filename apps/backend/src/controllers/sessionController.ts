@@ -75,3 +75,26 @@ export const endSession = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: 'Failed to end session' });
   }
 };
+export const getSharedByMe = async (req: Request, res: Response) => {
+  const userId = (req as any).user._id;
+
+  try {
+    const sessions = await SessionModel.find({ userId, 'collaborators.0': { $exists: true } })
+      .sort({ updatedAt: -1 });
+    res.json({ success: true, data: sessions });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch shared sessions' });
+  }
+};
+
+export const getSharedToMe = async (req: Request, res: Response) => {
+  const userId = (req as any).user._id;
+
+  try {
+    const sessions = await SessionModel.find({ 'collaborators.userId': userId })
+      .sort({ updatedAt: -1 });
+    res.json({ success: true, data: sessions });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch sessions shared with you' });
+  }
+};

@@ -7,7 +7,7 @@ class AppConfig {
   );
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.20.150.66:5000',
+    defaultValue: 'http://localhost:5000',
   );
 
   static bool get hasGeminiKey => geminiApiKey.trim().isNotEmpty;

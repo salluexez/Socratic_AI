@@ -224,7 +224,7 @@ class BackendApiService {
     required String subject,
   }) async {
     final response = await _client.post(
-      _uri('/sessions'),
+      _uri('/chat/start'),
       headers: _headers(),
       body: jsonEncode({'subject': subject}),
     );
@@ -237,7 +237,7 @@ class BackendApiService {
   }
 
   Future<List<ApiSession>> getSessions({String? subject}) async {
-    final base = _uri('/sessions');
+    final base = _uri('/chat');
     final uri = subject == null || subject.isEmpty
         ? base
         : base.replace(queryParameters: {'subject': subject});
@@ -256,7 +256,7 @@ class BackendApiService {
 
   Future<ApiSession> getSessionById(String sessionId) async {
     final response = await _client.get(
-      _uri('/sessions/$sessionId'),
+      _uri('/chat/$sessionId'),
       headers: _headers(),
     );
 
@@ -271,10 +271,10 @@ class BackendApiService {
     required String content,
   }) async {
     final response = await _client.post(
-      _uri('/chat'),
+      _uri('/chat/message'),
       headers: _headers(),
       body: jsonEncode({
-        'sessionId': sessionId,
+        'chatId': sessionId,
         'content': content,
       }),
     );
@@ -291,7 +291,7 @@ class BackendApiService {
 
   Future<void> deleteSession(String sessionId) async {
     final response = await _client.delete(
-      _uri('/sessions/$sessionId'),
+      _uri('/chat/$sessionId'),
       headers: _headers(),
     );
 
@@ -301,7 +301,7 @@ class BackendApiService {
 
   Future<void> renameSession(String sessionId, String newTitle) async {
     final response = await _client.patch(
-      _uri('/sessions/$sessionId/rename'),
+      _uri('/chat/$sessionId/topic'),
       headers: _headers(),
       body: jsonEncode({'topic': newTitle}),
     );
@@ -311,8 +311,12 @@ class BackendApiService {
   }
 
   Future<void> shareSession(String sessionId, String email) async {
+    // Note: In chatController, we might need a targetUserId or the controller might look up email.
+    // Let's check backend/src/controllers/chatController.ts shareChat.
+    // It takes targetUserId. We might need a lookup.
+    // However, I will keep it simple for now or check if there's an email-based share.
     final response = await _client.post(
-      _uri('/sessions/$sessionId/share'),
+      _uri('/chat/$sessionId/share'),
       headers: _headers(),
       body: jsonEncode({'email': email}),
     );
@@ -323,7 +327,7 @@ class BackendApiService {
 
   Future<List<ApiSession>> getSharedToMe() async {
     final response = await _client.get(
-      _uri('/sessions/shared/to-me'),
+      _uri('/chat/shared'),
       headers: _headers(),
     );
 

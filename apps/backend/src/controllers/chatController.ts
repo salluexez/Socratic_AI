@@ -275,7 +275,7 @@ export const updateChatTopic = async (req: Request, res: Response) => {
 // Share a chat with another user
 export const shareChat = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { targetUserId, access = 'read' } = req.body;
+  const { targetUserId, email, access = 'read' } = req.body; // Added email support
   const userId = (req as any).user._id;
 
   try {
@@ -284,13 +284,28 @@ export const shareChat = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: 'Chat not found' });
     }
 
+    let resolvedTargetId = targetUserId;
+
+    // If email is provided, look up the target user ID
+    if (!resolvedTargetId && email) {
+      const targetUser = await UserModel.findOne({ email: email.toLowerCase().trim() });
+      if (!targetUser) {
+        return res.status(404).json({ success: false, error: 'Target user not found with this email' });
+      }
+      resolvedTargetId = targetUser._id;
+    }
+
+    if (!resolvedTargetId) {
+      return res.status(400).json({ success: false, error: 'Target user ID or email is required' });
+    }
+
     // Check if already shared
-    const isAlreadyShared = chat.collaborators.some(c => c.userId.toString() === targetUserId);
+    const isAlreadyShared = chat.collaborators.some(c => c.userId.toString() === resolvedTargetId.toString());
     if (isAlreadyShared) {
       return res.status(400).json({ success: false, error: 'Chat already shared with this user' });
     }
 
-    chat.collaborators.push({ userId: targetUserId as any, access });
+    chat.collaborators.push({ userId: resolvedTargetId as any, access });
     await chat.save();
 
     res.json({ success: true, message: 'Chat shared successfully', data: chat });

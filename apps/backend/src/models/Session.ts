@@ -1,8 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { Session, Message } from '../types';
 
-export interface ISessionDocument extends Omit<Session, '_id' | 'userId'>, Document {
+export interface ISessionDocument extends Omit<Session, '_id' | 'userId' | 'collaborators'>, Document {
   userId: mongoose.Types.ObjectId;
+  collaborators: { userId: mongoose.Types.ObjectId; access: 'read' | 'write' }[];
 }
 
 const messageSchema = new Schema<Message>({
@@ -26,6 +27,12 @@ const sessionSchema = new Schema<ISessionDocument>(
     duration: { type: Number },
     attemptCount: { type: Number, default: 0 },
     messages: [messageSchema],
+    collaborators: [
+      {
+        userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        access: { type: String, enum: ['read', 'write'], default: 'read' },
+      },
+    ],
   },
   { timestamps: true }
 );
