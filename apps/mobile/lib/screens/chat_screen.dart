@@ -42,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ApiSession> _subjectSessions = [];
   bool _isLoadingHistory = false;
   ApiSession? _chatSession;
-  int _lastRevealMessageCount = 0;
+  int _hintCount = 0;
 
   @override
   void initState() {
@@ -104,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
               )
             : null,
         actions: [
-          if ((messages.where((m) => m.role == 'user').length - _lastRevealMessageCount) >= 3)
+          if (_hintCount >= 3)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: FilledButton.tonalIcon(
@@ -663,6 +663,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) return;
     controller.clear();
     _focusNode.requestFocus();
+    setState(() => _hintCount = 0); // Reset hints on a new manual message
     await _submitUserMessage(text);
   }
 
@@ -679,21 +680,21 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _sendSimplifyRequest() async {
+    setState(() => _hintCount++); // Increment clicks
     await _submitUserMessage(
       'Please simplify this problem and break it into smaller steps.',
     );
   }
 
   Future<void> _sendRevealRequest() async {
-    setState(() {
-      _lastRevealMessageCount = messages.where((m) => m.role == 'user').length;
-    });
+    setState(() => _hintCount = 0); // Reset hints after revealing
     await _submitUserMessage(
       'I give up, please show me the full solution with reasoning.',
+      revealAnswer: true,
     );
   }
 
-  Future<void> _submitUserMessage(String text) async {
+  Future<void> _submitUserMessage(String text, {bool revealAnswer = false}) async {
     final userMessage = ChatMessage(role: 'user', content: text);
     setState(() {
       messages.add(userMessage);
@@ -714,6 +715,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final result = await BackendApiService.instance.sendChatMessage(
         sessionId: _currentSessionId!,
         content: text,
+        revealAnswer: revealAnswer,
       );
 
       if (!mounted) return;

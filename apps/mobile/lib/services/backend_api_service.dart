@@ -269,6 +269,7 @@ class BackendApiService {
   Future<ChatResult> sendChatMessage({
     required String sessionId,
     required String content,
+    bool revealAnswer = false,
   }) async {
     final response = await _client.post(
       _uri('/chat/message'),
@@ -276,6 +277,7 @@ class BackendApiService {
       body: jsonEncode({
         'chatId': sessionId,
         'content': content,
+        'revealAnswer': revealAnswer,
       }),
     );
 

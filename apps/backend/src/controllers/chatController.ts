@@ -37,7 +37,7 @@ export const startChat = async (req: Request, res: Response) => {
 
 // Send a message and get Socratic AI response
 export const sendMessage = async (req: Request, res: Response) => {
-  const { chatId, content } = req.body;
+  const { chatId, content, revealAnswer = false } = req.body;
   const userId = (req as any).user._id;
 
   try {
@@ -76,6 +76,7 @@ export const sendMessage = async (req: Request, res: Response) => {
         topic: chat.subject,
         history: history.slice(0, -1), // send history without the current message
         message: trimmedContent,
+        revealAnswer
       }),
       signal: AbortSignal.timeout(15000),
     });

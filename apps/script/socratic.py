@@ -61,114 +61,43 @@ class ChatResponse(BaseModel):
 # ------------------------
 
 def ask_ai(topic, history, question, reveal):
-
-    # --------------------
     # REVEAL ANSWER MODE
-    # --------------------
-
     if reveal:
-
         messages = [
-
-            {
-                "role": "system",
-
-                "content": f"""
-You are expert teacher of {topic}.
-
-Give direct final answer.
-
-Rules:
-- Start directly with solution
-- Do NOT ask questions
-- Do NOT mention Socratic tutor
-- Do NOT apologise
-- Do NOT mention hints
-- Give clear step-by-step answer
-"""
-            },
-
-            {
-                "role": "user",
-                "content": question
-            }
+            {"role": "system", "content": f"You are an expert teacher of {topic}. Based on the conversation history below, provide the FINAL COMPLETE SOLUTION and ANSWER. Do not ask any more questions. Be direct and clear."}
         ]
-
-
-    # --------------------
+        # Include history for context
+        for msg in history[-10:]:
+            messages.append({"role": msg.role, "content": msg.content})
+        messages.append({"role": "user", "content": question})
     # NORMAL SOCRATIC MODE
-    # --------------------
-
     else:
-
         messages = [
-
-            {
-                "role": "system",
-
-                "content": f"""
-You are Socratic tutor for {topic}.
-
-Rules:
-- Ask guiding question
-- Give hints only
-- Do NOT give final answer
-- Keep answer short (3-5 lines)
-- If unrelated respond ONLY IRRELEVANT
-"""
-            }
+            {"role": "system", "content": f"""You are a supportive Socratic tutor for {topic}. 
+            Goal: Guide the student to discover concepts on their own.
+            STRICT RULES:
+            - NEVER give the definition, name, or answer, even as a question (e.g., don't say "Is it a table?").
+            - Instead, ask them about where they've seen it or what they think the term sounds like. 
+            - Example for "what is a matrix": "That's a powerful tool! Before we dive in, have you ever seen data organized in a grid, like in a spreadsheet?"
+            - Keep responses very short (1-2 lines max).
+            - Only if the user talks about something completely unrelated (like movies), say: "I'd love to help, but let's stay focused on learning {topic}!"
+            """}
         ]
-
-        # include previous messages
-        for msg in history[-6:]:
-
-            messages.append({
-
-                "role": msg.role,
-
-                "content": msg.content
-            })
-
-        messages.append({
-
-            "role": "user",
-
-            "content": question
-        })
-
-
-    # --------------------
-    # call groq model
-    # --------------------
+        # Include context
+        for msg in history[-10:]:
+            messages.append({"role": msg.role, "content": msg.content})
+        messages.append({"role": "user", "content": question})
 
     completion = client.chat.completions.create(
-
         model="llama-3.1-8b-instant",
-
         messages=messages,
-
-        temperature=0.2
-
+        temperature=0.3
     )
 
     reply = completion.choices[0].message.content.strip()
-
-
-    # --------------------
-    # irrelevant logic
-    # --------------------
-
-    if reveal:
-
-        return reply, False
-
-
-    if "IRRELEVANT" in reply.upper():
-
-        return "Ask question related to topic.", True
-
-
-    return reply, False
+    # conversational irrelevant check
+    is_irrelevant = "STAY FOCUSED" in reply.upper()
+    return reply, is_irrelevant
 
 
 # ------------------------
