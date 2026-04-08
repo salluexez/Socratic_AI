@@ -72,14 +72,24 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const activeChat = currentChat?.subject === subject ? currentChat : null;
-  const userMessages = activeChat?.messages.filter((m: Message) => m.role === "user") || [];
-  const questionCount = userMessages.filter(
-    (m) => m.content !== HINT_PROMPT && m.content !== REVEAL_PROMPT
+  
+  // Logic: Only count hints/reveals since the last 'real' (non-hint) student question
+  const messages = activeChat?.messages || [];
+  const lastRealQuestionIndex = [...messages].reverse().findIndex(
+    m => m.role === 'user' && m.content !== HINT_PROMPT && m.content !== REVEAL_PROMPT
+  );
+
+  const currentSequence = lastRealQuestionIndex === -1 ? [] : messages.slice(messages.length - 1 - lastRealQuestionIndex);
+
+  const questionCount = messages.filter((m: Message) => 
+    m.role === "user" && m.content !== HINT_PROMPT && m.content !== REVEAL_PROMPT
   ).length;
-  const hintCount = userMessages.filter((m) => m.content === HINT_PROMPT).length;
-  const hasRevealed = userMessages.some((m) => m.content === REVEAL_PROMPT);
-  const canRevealAnswer = hintCount >= 3 && questionCount > 0 && !hasRevealed;
-  const canUseHint = questionCount > 0 && !canRevealAnswer;
+
+  const currentHintCount = currentSequence.filter(m => m.role === 'user' && m.content === HINT_PROMPT).length;
+  const hasRevealedCurrent = currentSequence.some(m => m.role === 'user' && m.content === REVEAL_PROMPT);
+
+  const canRevealAnswer = currentHintCount >= 3 && questionCount > 0 && !hasRevealedCurrent;
+  const canUseHint = questionCount > 0 && !canRevealAnswer && !hasRevealedCurrent;
 
   const personalChats = chats.filter(
     (c) => c.userId === user?._id && (!c.collaborators || c.collaborators.length === 0)
@@ -350,11 +360,11 @@ export default function ChatPage() {
         >
           <div className="mx-auto max-w-3xl space-y-12 pb-32">
             {activeChat && activeChat.messages.length > 0 && (
-              <div className="h-4" /> 
+              <div className="h-4" />
             )}
             {(!activeChat || activeChat.messages.length === 0) && !chatLoading && (
               <div className="flex flex-col items-center py-32 text-center">
-                <div className="h-4" /> 
+                <div className="h-4" />
               </div>
             )}
 
@@ -508,11 +518,10 @@ export default function ChatPage() {
 
       {/* History Archive Sidebar (Right) */}
       <aside
-        className={`fixed inset-y-0 right-0 z-50 flex w-[88vw] max-w-[340px] shrink-0 flex-col overflow-hidden bg-[var(--background)] transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:w-auto lg:max-w-none lg:transition-all lg:duration-500 ${
-          isSidebarOpen
+        className={`fixed inset-y-0 right-0 z-50 flex w-[88vw] max-w-[340px] shrink-0 flex-col overflow-hidden bg-[var(--background)] transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:w-auto lg:max-w-none lg:transition-all lg:duration-500 ${isSidebarOpen
             ? "translate-x-0 border-l border-[var(--border)] lg:w-[340px]"
             : "translate-x-full border-l-0 lg:w-0"
-        }`}
+          }`}
       >
         <div className="custom-scrollbar flex h-full w-full flex-col overflow-y-auto p-4 pt-6 sm:p-5 lg:w-[340px] lg:p-6 space-y-8">
           <div className="flex items-center justify-between sticky top-0 bg-[var(--background)] py-2 z-10 pointer-events-none">
