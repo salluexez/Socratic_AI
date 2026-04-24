@@ -17,117 +17,128 @@ class SubjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: palette.surfaceCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark ? palette.outline : palette.outline.withValues(alpha: 0.5), 
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDark 
-                    ? Colors.black.withValues(alpha: 0.3) 
-                    : palette.text.withValues(alpha: 0.06),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: isDark 
+                ? Colors.black.withValues(alpha: 0.2) 
+                : palette.primaryDim.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: subject.accent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(
-                      child: Icon(subject.icon, color: subject.accent, size: 24),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          subject.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 17,
-                                color: palette.text,
-                                height: 1.2,
-                              ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          subject.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: palette.textMuted,
-                                fontSize: 13,
-                                height: 1.4,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: palette.surfaceCard,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: palette.outline.withValues(alpha: 0.1),
+                width: 1,
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (subject.resumeLabel != null)
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: subject.accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            subject.accent.withValues(alpha: 0.15),
+                            subject.accent.withValues(alpha: 0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: subject.accent.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
                       ),
+                      child: Center(
+                        child: Icon(subject.icon, color: subject.accent, size: 18),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
                       child: Text(
-                        subject.resumeLabel!,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: subject.accent,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                        subject.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              letterSpacing: -0.4,
+                              color: palette.text,
                             ),
                       ),
-                    )
-                  else
-                    const SizedBox(),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isDark 
-                          ? palette.outline.withValues(alpha: 0.2) 
-                          : palette.outline.withValues(alpha: 0.3),
-                      shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: isDark ? palette.text : palette.text.withValues(alpha: 0.8),
-                      size: 14,
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subject.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: palette.textMuted,
+                        fontSize: 10,
+                        height: 1.2,
+                      ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (subject.resumeLabel != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: palette.primaryDim.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          subject.resumeLabel!,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: palette.primaryDim,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 9,
+                              ),
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: palette.primaryDim.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: palette.primaryDim,
+                        size: 16,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

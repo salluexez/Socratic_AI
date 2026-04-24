@@ -29,52 +29,58 @@ class _LearnScreenState extends State<LearnScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: palette.chipBackground,
+                color: palette.primaryDim.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                'Current Session',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: palette.primaryDim,
-                    ),
+                'CURRENT SESSION',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.5,
+                  color: palette.primaryDim,
+                ),
               ),
             ),
-            const SizedBox(height: 18),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Explore your ',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 18,
-                      color: palette.textMuted,
-                      letterSpacing: -0.5,
-                    ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Explore your ',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: palette.textMuted,
+                    letterSpacing: 1.2,
                   ),
-                  TextSpan(
-                    text: 'Curiosity',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          height: 1.0,
-                        ),
+                ),
+                Text(
+                  'Curiosity',
+                  style: GoogleFonts.cookie(
+                    fontSize: 28,
+                    color: palette.primaryDim,
+                    height: 1,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               'Select a subject and begin a guided conversation through questions, hints, and deeper thinking.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: palette.textMuted,
+              style: GoogleFonts.inter(
+                    color: palette.text,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    height: 1.5,
                   ),
             ),
             const SizedBox(height: 24),
             LayoutBuilder(
               builder: (context, constraints) {
-                final isCompact = constraints.maxWidth < 360;
+                // Ensure 2 columns on most phones by lowering threshold
+                final isCompact = constraints.maxWidth < 280;
                 final courseController = CourseControllerScope.of(context);
                 
                 return ValueListenableBuilder<List<String>>(
@@ -82,21 +88,22 @@ class _LearnScreenState extends State<LearnScreen> {
                   builder: (context, selectedSlugs, _) {
                     final subjects = courseController.activeSubjects;
                     
-                    return GridView.builder(
-                      itemCount: subjects.length,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isCompact ? 1 : 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        mainAxisExtent: isCompact ? 145 : 155,
-                      ),
-                      itemBuilder: (context, index) {
-                        final subject = subjects[index];
-                        return SubjectCard(
-                          subject: subject,
-                          onTap: () => _openChat(context, subject),
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final spacing = 12.0;
+                        final width = (constraints.maxWidth - spacing) / (isCompact ? 1 : 2);
+                        return Wrap(
+                          spacing: spacing,
+                          runSpacing: spacing,
+                          children: subjects.map((subject) {
+                            return SizedBox(
+                              width: width,
+                              child: SubjectCard(
+                                subject: subject,
+                                onTap: () => _openChat(context, subject),
+                              ),
+                            );
+                          }).toList(),
                         );
                       },
                     );
@@ -106,43 +113,61 @@ class _LearnScreenState extends State<LearnScreen> {
             ),
             const SizedBox(height: 24),
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 color: palette.surfaceCard,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: isDark ? palette.outline : palette.outline.withValues(alpha: 0.5),
+                  color: palette.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isDark 
-                        ? Colors.black.withValues(alpha: 0.3) 
-                        : palette.text.withValues(alpha: 0.06),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+                        ? Colors.black.withValues(alpha: 0.2) 
+                        : palette.text.withValues(alpha: 0.04),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Socratic Prompt of the Day',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: palette.primaryDim,
-                        ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: palette.primaryDim.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Socratic Prompt of the Day',
+                      style: GoogleFonts.inter(
+                            color: palette.primaryDim,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            letterSpacing: 0.5,
+                          ),
+                    ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   Text(
                     '"If you wish to converse with me, define your terms."',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: GoogleFonts.inter(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Text(
                     'Choose a path and connect ideas across subjects with calm, structured questioning.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: GoogleFonts.inter(
                           color: palette.textMuted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.5,
                         ),
                   ),
                 ],
