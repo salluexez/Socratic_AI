@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,7 @@ import '../models/api_session.dart';
 import '../services/backend_api_service.dart';
 import '../services/subject_catalog.dart';
 import '../theme/app_theme.dart';
+import '../widgets/ambient_background.dart';
 import 'chat_screen.dart';
 
 class AllSessionsScreen extends StatefulWidget {
@@ -163,41 +165,38 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final palette = context.palette;
 
     return Scaffold(
-      backgroundColor: palette.surfaceLow,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Your ',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 18,
-                  color: palette.textMuted,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              TextSpan(
-                text: 'Sessions',
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      fontSize: 24,
-                      height: 1.0,
-                    ),
-              ),
-            ],
+        title: Text(
+          'History',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.w800,
+            fontSize: 24,
+            letterSpacing: -0.5,
           ),
         ),
-        backgroundColor: palette.surfaceLow,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: palette.surfaceLow.withValues(alpha: 0.6),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () => _fetchSessions(showLoading: true),
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+      body: AmbientBackground(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(
                   child: Column(
@@ -242,14 +241,20 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                             ? DateFormat('MMM d, yyyy • h:mm a').format(session.createdAt!)
                             : 'Unknown date';
 
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 0,
-                          color: palette.surfaceCard,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: palette.outline, width: 1),
-                          ),
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: palette.surfaceCard.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: palette.outline.withValues(alpha: 0.2),
+                                  width: 1.5,
+                                ),
+                              ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             leading: Container(
@@ -314,9 +319,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                               );
                             },
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+      ),
     );
   }
 }

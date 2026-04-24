@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -39,23 +40,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final palette = context.palette;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    // Derived stats
     final totalSeconds = sessions.fold<int>(
       0,
       (sum, session) => sum + (session.duration ?? 0).toInt(),
     );
     final totalHours = (totalSeconds / 3600).toStringAsFixed(1);
     
-    // Safety Fallback User
     final displayUser = user ?? ApiUser(
       id: 'mock',
       name: 'Scholar Student',
       email: 'hello@${AppConfig.appName.toLowerCase().replaceAll(' ', '')}.ai',
     );
 
-    return Container(
-      color: palette.surfaceLow,
-      child: isLoading
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               bottom: false,
@@ -65,31 +64,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    // Header / App Bar Simulation
+                    // Header
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Your ',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18,
-                                color: palette.textMuted,
-                                letterSpacing: -0.5,
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Your ',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
+                                  color: palette.textMuted,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
-                            ),
-                                  TextSpan(
-                                    text: 'Profile',
-                                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                          height: 1.0,
-                                        ),
-                                  ),
-                          ],
+                              TextSpan(
+                                text: 'Profile',
+                                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                      height: 1.0,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                       ],
                     ),
                     const SizedBox(height: 40),
@@ -103,30 +102,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Stack(
                             alignment: Alignment.bottomRight,
                             children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [palette.primaryDim, palette.secondaryContainer],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: palette.primaryDim.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  spreadRadius: 2,
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [palette.primaryDim, palette.secondaryContainer],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: palette.primaryDim.withValues(alpha: 0.3),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              radius: 56,
-                              backgroundColor: palette.surfaceCard,
-                              child: Icon(Icons.person_rounded, 
-                                size: 60, color: palette.primaryDim),
-                            ),
-                          ),
+                                child: CircleAvatar(
+                                  radius: 56,
+                                  backgroundColor: palette.surfaceCard,
+                                  child: Icon(Icons.person_rounded, 
+                                    size: 60, color: palette.primaryDim),
+                                ),
+                              ),
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
@@ -160,12 +159,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // Modern Stats Bar
+                    // Modern Stats Bar (Glassmorphic)
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: palette.surfaceCard,
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: BorderRadius.circular(32),
                         boxShadow: [
                           BoxShadow(
                             color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
@@ -174,30 +171,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _VerticalStat(
-                            icon: Icons.auto_graph_rounded,
-                            value: '${sessions.length}',
-                            label: 'Sessions',
-                            color: palette.primaryDim,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(32),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            decoration: BoxDecoration(
+                              color: isDark 
+                                  ? palette.surfaceCard.withValues(alpha: 0.6) 
+                                  : palette.surfaceCard.withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(32),
+                              border: Border.all(
+                                color: isDark ? Colors.white.withValues(alpha: 0.1) : palette.outline.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _VerticalStat(
+                                  icon: Icons.auto_graph_rounded,
+                                  value: '${sessions.length}',
+                                  label: 'Sessions',
+                                  color: palette.primaryDim,
+                                ),
+                                _StatDivider(palette: palette),
+                                _VerticalStat(
+                                  icon: Icons.timer_rounded,
+                                  value: totalHours,
+                                  label: 'Hours',
+                                  color: const Color(0xFF00BFA5),
+                                ),
+                                _StatDivider(palette: palette),
+                                const _VerticalStat(
+                                  icon: Icons.local_fire_department_rounded,
+                                  value: '4', 
+                                  label: 'Streak',
+                                  color: Color(0xFFFF9100),
+                                ),
+                              ],
+                            ),
                           ),
-                          _StatDivider(palette: palette),
-                          _VerticalStat(
-                            icon: Icons.timer_rounded,
-                            value: totalHours,
-                            label: 'Hours',
-                            color: const Color(0xFF00BFA5),
-                          ),
-                          _StatDivider(palette: palette),
-                          const _VerticalStat(
-                            icon: Icons.local_fire_department_rounded,
-                            value: '4', // Mock streak
-                            label: 'Streak',
-                            color: Color(0xFFFF9100),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -220,13 +236,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // Action Group: Support
+                    // Action Group: General
                     const _SectionHeader(title: 'General'),
                     const SizedBox(height: 12),
                     _ActionTile(
                       icon: Icons.explore_rounded,
                       title: 'Explore Courses',
-                      subtitle: 'Discover and add more subjects to your path',
+                      subtitle: 'Discover and add more subjects',
                       onTap: () {
                         Navigator.pushNamed(context, ExploreCoursesScreen.routeName);
                       },
@@ -248,7 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     
-                    const SizedBox(height: 120), // Space for nav bar
+                    const SizedBox(height: 120),
                   ],
                 ),
               ),
@@ -258,7 +274,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showEditProfileDialog() async {
     if (user == null) return;
-    
     final nameController = TextEditingController(text: user!.name);
     final palette = context.palette;
     
@@ -333,7 +348,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showPrivacySheet() async {
     final palette = context.palette;
-    
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -373,19 +387,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const _PrivacyItem(
               icon: Icons.lock_outline_rounded,
               title: 'Data Protection',
-              description: 'Your conversations are stored securely. We do not use third-party trackers or sell your information.',
+              description: 'Your conversations are stored securely. We do not use third-party trackers.',
             ),
             const SizedBox(height: 16),
             const _PrivacyItem(
               icon: Icons.share_outlined,
               title: 'Shared Sessions',
-              description: 'Shared session links are accessible to anyone with the URL. Revoke access anytime from the share menu.',
-            ),
-            const SizedBox(height: 16),
-            const _PrivacyItem(
-              icon: Icons.security_outlined,
-              title: 'Infrastructure',
-              description: 'The Socratic-Ai ecosystem uses professional-grade security for all API communications.',
+              description: 'Revoke access anytime from the share menu.',
             ),
             const SizedBox(height: 32),
             Divider(color: palette.text.withValues(alpha: 0.05)),
@@ -402,7 +410,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ActionTile(
               icon: Icons.delete_forever_rounded,
               title: 'Delete All My Data',
-              subtitle: 'Permanently remove your account and all history',
+              subtitle: 'Permanently remove your account',
               color: Colors.redAccent,
               onTap: () async {
                 final confirm = await showDialog<bool>(
@@ -411,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     backgroundColor: palette.surfaceCard,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     title: const Text('Are you absolutely sure?'),
-                    content: const Text('This will permanently delete your account and all chat history. This action cannot be undone.'),
+                    content: const Text('This will permanently delete your account and history.'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
@@ -431,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 if (confirm == true) {
                   if (!context.mounted) return;
-                  Navigator.pop(context); // Close sheet
+                  Navigator.pop(context);
                   setState(() => isLoading = true);
                   try {
                     await BackendApiService.instance.deleteMe();
@@ -479,9 +487,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        isLoading = false; // Still allow UI to show with defaults
-      });
+      setState(() => isLoading = false);
     }
   }
 }
@@ -582,56 +588,80 @@ class _ActionTile extends StatelessWidget {
     final palette = context.palette;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: palette.surfaceCard,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (color ?? palette.primaryDim).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: color ?? palette.primaryDim, size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.15) : palette.text.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: isDark 
+                  ? palette.surfaceCard.withValues(alpha: 0.6) 
+                  : palette.surfaceCard.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : palette.outline.withValues(alpha: 0.5),
+                width: 1,
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, 
-              color: palette.text.withValues(alpha: 0.1), size: 16),
-          ],
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(24),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: (color ?? palette.primaryDim).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(icon, color: color ?? palette.primaryDim, size: 20),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, 
+                        color: palette.text.withValues(alpha: 0.2), size: 14),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

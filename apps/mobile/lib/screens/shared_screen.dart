@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -29,7 +30,6 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
     _loadData(showLoading: true);
     _startPolling();
     
-    // Refresh when data changes elsewhere
     BackendApiService.instance.refreshNotifier.addListener(_handleDataChanged);
   }
 
@@ -107,9 +107,9 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TabBar(
               controller: _tabController,
-              labelColor: AppColors.primary,
+              labelColor: palette.primaryDim,
               unselectedLabelColor: palette.textMuted,
-              indicatorColor: AppColors.primary,
+              indicatorColor: palette.primaryDim,
               indicatorSize: TabBarIndicatorSize.label,
               dividerColor: Colors.transparent,
               tabs: const [
@@ -135,17 +135,20 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
   }
 
   Widget _buildSessionList(List<ApiSession> sessions, {required bool isSharedByMe}) {
+    final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (sessions.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.people_outline_rounded, size: 64, color: context.palette.textMuted.withValues(alpha: 0.5)),
+            Icon(Icons.people_outline_rounded, size: 64, color: palette.textMuted.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             Text(
               'No shared sessions yet',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: context.palette.textMuted,
+                    color: palette.textMuted,
                   ),
             ),
           ],
@@ -166,95 +169,109 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
         Widget card = Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: context.palette.surfaceCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: context.isDark ? context.palette.outline : context.palette.outline.withValues(alpha: 0.5),
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: context.isDark 
-                    ? Colors.black.withValues(alpha: 0.3) 
-                    : context.palette.text.withValues(alpha: 0.06),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
+                color: isDark 
+                    ? Colors.black.withValues(alpha: 0.2) 
+                    : palette.text.withValues(alpha: 0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _handleSessionTap(session, isSharedByMe),
-              borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark 
+                      ? palette.surfaceCard.withValues(alpha: 0.6) 
+                      : palette.surfaceCard.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.1) : palette.outline.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _handleSessionTap(session, isSharedByMe),
+                    borderRadius: BorderRadius.circular(24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
                         children: [
-                          Text(
-                            session.displayTitle,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: context.palette.text,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  session.displayTitle,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 17,
+                                    color: palette.text,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      isSharedByMe ? Icons.share_rounded : Icons.person_outline_rounded,
+                                      size: 14,
+                                      color: palette.textMuted,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      isSharedByMe 
+                                        ? 'Shared with ${session.collaborators.length} users'
+                                        : 'Shared by $ownerName',
+                                      style: TextStyle(color: palette.textMuted, fontSize: 12, fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(color: palette.textMuted, fontSize: 11, fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Row(
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Icon(
-                                isSharedByMe ? Icons.share_rounded : Icons.person_outline_rounded,
-                                size: 14,
-                                color: context.palette.textMuted,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: palette.primaryDim.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  session.subject.toUpperCase(),
+                                  style: TextStyle(
+                                    color: palette.primaryDim,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                isSharedByMe 
-                                  ? 'Shared with ${session.collaborators.length} users'
-                                  : 'Shared by $ownerName',
-                                style: TextStyle(color: context.palette.textMuted, fontSize: 12),
-                              ),
+                              if (isSharedByMe && session.collaborators.isNotEmpty) 
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Icon(Icons.manage_accounts_rounded, size: 18, color: palette.primaryDim),
+                                ),
                             ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            formattedDate,
-                            style: TextStyle(color: context.palette.textMuted, fontSize: 11),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            session.subject.toUpperCase(),
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        if (isSharedByMe && session.collaborators.isNotEmpty) 
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Icon(Icons.manage_accounts_rounded, size: 18, color: context.palette.primaryDim),
-                          ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -268,10 +285,10 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             background: Container(
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              margin: const EdgeInsets.only(bottom: 12),
+              margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
                 color: Colors.red.shade900.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: const Icon(Icons.person_remove_rounded, color: Colors.white),
             ),
@@ -303,7 +320,7 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
             slug: session.subject.toLowerCase(),
             description: 'Shared session',
             icon: Icons.school_rounded,
-            accent: AppColors.primary,
+            accent: context.palette.primaryDim,
           ),
           sessionId: session.id,
         ),
@@ -394,10 +411,10 @@ class _SharedScreenState extends State<SharedScreen> with SingleTickerProviderSt
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                            backgroundColor: context.palette.primaryDim.withValues(alpha: 0.1),
                             child: Text(
                               hasName ? collab.name![0].toUpperCase() : '?',
-                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: context.palette.primaryDim, fontWeight: FontWeight.bold),
                             ),
                           ),
                           title: Text(collab.name ?? 'Unknown User'),

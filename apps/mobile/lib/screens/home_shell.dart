@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -5,6 +6,7 @@ import 'learn_screen.dart';
 import 'profile_screen.dart';
 import 'progress_screen.dart';
 import 'shared_screen.dart';
+import '../widgets/ambient_background.dart';
 import '../theme/theme_controller.dart';
 import '../theme/app_theme.dart';
 
@@ -23,7 +25,7 @@ class _HomeShellState extends State<HomeShell> {
   final screens = const [
     LearnScreen(),
     ProgressScreen(),
-    SharedScreen(), // New tab
+    SharedScreen(),
     ProfileScreen(),
   ];
 
@@ -82,9 +84,14 @@ class _HomeShellState extends State<HomeShell> {
         ],
         backgroundColor: Colors.transparent,
       ),
-      body: IndexedStack(
-        index: currentIndex,
-        children: screens,
+      body: Stack(
+        children: [
+          const AmbientBackground(),
+          IndexedStack(
+            index: currentIndex,
+            children: screens,
+          ),
+        ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,
@@ -92,11 +99,7 @@ class _HomeShellState extends State<HomeShell> {
           height: 80,
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           decoration: BoxDecoration(
-            color: isDark 
-              ? palette.surfaceCard.withValues(alpha: 0.8) 
-              : palette.surfaceCard.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(32),
-            border: isDark ? Border.all(color: palette.outline, width: 1) : null,
             boxShadow: [
               BoxShadow(
                 color: isDark ? Colors.black.withValues(alpha: 0.2) : palette.text.withValues(alpha: 0.1),
@@ -107,12 +110,22 @@ class _HomeShellState extends State<HomeShell> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(32),
-            child: isDark 
-              ? BackdropFilter(
-                  filter: ColorFilter.mode(palette.surfaceCard.withValues(alpha: 0.1), BlendMode.overlay),
-                  child: _buildNavBar(palette),
-                )
-              : _buildNavBar(palette),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark 
+                    ? palette.surfaceCard.withValues(alpha: 0.6) 
+                    : palette.surfaceCard.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.1) : palette.outline.withValues(alpha: 0.5),
+                    width: 1,
+                  ),
+                ),
+                child: _buildNavBar(palette),
+              ),
+            ),
           ),
         ),
       ),

@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_controller.dart';
+import '../widgets/ambient_background.dart';
 import '../widgets/gradient_button.dart';
 import 'home_shell.dart';
 
@@ -38,7 +40,10 @@ class _AuthScreenState extends State<AuthScreen> {
     final palette = context.palette;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             onPressed: () => ThemeControllerScope.of(context).next(),
@@ -48,28 +53,32 @@ class _AuthScreenState extends State<AuthScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: AmbientBackground(
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 40),
               Center(
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    border: Border.all(color: palette.primaryDim.withValues(alpha: 0.2), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: palette.primaryDim.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        spreadRadius: 5,
+                        color: palette.primaryDim.withValues(alpha: 0.1),
+                        blurRadius: 30,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
+                    borderRadius: BorderRadius.circular(50),
                     child: Image.asset(
                       'assets/logo.jpg',
                       fit: BoxFit.cover,
@@ -77,125 +86,139 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.2),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
-                    child: child,
-                  ),
-                ),
-                child: Text(
-                  isSignIn ? 'Welcome back' : 'Create account',
-                  key: ValueKey(isSignIn),
-                  style: GoogleFonts.cookie(
-                    textStyle: Theme.of(context).textTheme.displayMedium,
-                    fontSize: 48,
-                    height: 1.0,
-                    color: palette.primaryDim,
-                  ),
+              const SizedBox(height: 40),
+              Text(
+                isSignIn ? 'Welcome back' : 'Create account',
+                style: GoogleFonts.outfit(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -1,
+                  color: palette.text,
                 ),
               ),
-              const SizedBox(height: 12),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                child: Text(
-                  isSignIn 
-                    ? 'Start your guided learning journey with a calm Socratic companion.'
-                    : 'Join a community of critical thinkers and start your learning journey.',
-                  key: ValueKey(isSignIn),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: palette.textMuted,
-                      ),
+              const SizedBox(height: 8),
+              Text(
+                isSignIn 
+                  ? 'Sign in to continue your journey.'
+                  : 'Start your guided learning path.',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: palette.textMuted,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 28),
-              _AuthToggle(
-                isSignIn: isSignIn,
-                onChanged: (value) => setState(() => isSignIn = value),
-              ),
-              const SizedBox(height: 24),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: Column(
-                  children: [
-                    if (!isSignIn) ...[
-                      TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Full name',
-                          prefixIcon: Icon(Icons.person_outline_rounded),
+              const SizedBox(height: 40),
+              
+              ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: palette.surfaceCard.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: palette.outline.withValues(alpha: 0.2),
+                          width: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                  ],
-                ),
-              ),
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: hidePassword,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _submitAuth(),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline_rounded),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        hidePassword = !hidePassword;
-                      });
-                    },
-                    icon: Icon(
-                      hidePassword
-                          ? Icons.visibility_off_rounded
-                          : Icons.visibility_rounded,
+                    child: Column(
+                      children: [
+                        _AuthToggle(
+                          isSignIn: isSignIn,
+                          onChanged: (value) => setState(() => isSignIn = value),
+                        ),
+                        const SizedBox(height: 32),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: Column(
+                            children: [
+                              if (!isSignIn) ...[
+                                _buildTextField(
+                                  controller: nameController,
+                                  label: 'Full Name',
+                                  icon: Icons.person_outline_rounded,
+                                  palette: palette,
+                                ),
+                                const SizedBox(height: 20),
+                              ],
+                            ],
+                          ),
+                        ),
+                        _buildTextField(
+                          controller: emailController,
+                          label: 'Email',
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          palette: palette,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          controller: passwordController,
+                          label: 'Password',
+                          icon: Icons.lock_outline_rounded,
+                          obscureText: hidePassword,
+                          palette: palette,
+                          suffix: IconButton(
+                            onPressed: () => setState(() => hidePassword = !hidePassword),
+                            icon: Icon(
+                              hidePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              size: 20,
+                              color: palette.textMuted,
+                            ),
+                          ),
+                        ),
+                        if (errorText != null) ...[
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.error_outline_rounded, color: Colors.red, size: 18),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    errorText!,
+                                    style: GoogleFonts.inter(
+                                      color: Colors.red,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: GradientButton(
+                            label: isSignIn ? 'SIGN IN' : 'CREATE ACCOUNT',
+                            onPressed: isLoading ? () {} : _submitAuth,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              if (errorText != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  errorText!,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.red,
-                      ),
-                ),
-              ],
               const SizedBox(height: 24),
-              GradientButton(
-                label: isSignIn ? 'Sign In' : 'Create Account',
-                onPressed: isLoading ? () {} : _submitAuth,
-              ),
-              const SizedBox(height: 12),
               Center(
                 child: TextButton(
                   onPressed: () => setState(() => isSignIn = !isSignIn),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Text(
-                      isSignIn
-                          ? 'Need an account? Sign Up'
-                          : 'Already have an account? Sign In',
-                      key: ValueKey(isSignIn),
-                    ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: palette.textMuted,
+                  ),
+                  child: Text(
+                    isSignIn ? 'Don\'t have an account? Sign Up' : 'Already have an account? Sign In',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -203,6 +226,57 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
+    ),
+   );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required AppPalette palette,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+    Widget? suffix,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: palette.primaryDim,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: palette.surfaceLow.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: palette.outline.withValues(alpha: 0.1)),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, size: 20, color: palette.textMuted),
+              suffixIcon: suffix,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              hintText: 'Enter your ${label.toLowerCase()}',
+              hintStyle: GoogleFonts.inter(
+                color: palette.textMuted.withValues(alpha: 0.4),
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -316,8 +390,9 @@ class _AuthToggle extends StatelessWidget {
       height: 56,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: palette.surfaceLow,
+        color: palette.surfaceLow.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: palette.outline.withValues(alpha: 0.1)),
       ),
       child: Stack(
         children: [
@@ -329,7 +404,7 @@ class _AuthToggle extends StatelessWidget {
               widthFactor: 0.5,
               child: Container(
                 decoration: BoxDecoration(
-                  color: palette.surfaceCard,
+                  color: palette.surfaceCard.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(999),
                   boxShadow: [
                     BoxShadow(
