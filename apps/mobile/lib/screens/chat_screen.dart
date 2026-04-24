@@ -1,10 +1,13 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/api_session.dart';
 import '../models/chat_message.dart';
 import '../models/subject.dart';
 import '../services/backend_api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/ambient_background.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/voice_input_suffix.dart';
 import 'package:intl/intl.dart';
@@ -77,63 +80,78 @@ class _ChatScreenState extends State<ChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.args.subject.name),
             Text(
-              _currentSessionId == null ? 'New session' : 'Current session',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: palette.textMuted,
+              widget.args.subject.name,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              _currentSessionId == null ? 'NEW SESSION' : 'CURRENT SESSION',
+              style: GoogleFonts.inter(
+                    color: palette.primaryDim,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
                   ),
             ),
           ],
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        flexibleSpace: isDark
-            ? ClipRect(
-                child: BackdropFilter(
-                  filter: ColorFilter.mode(
-                    palette.surfaceLow.withValues(alpha: 0.8),
-                    BlendMode.srcOver,
-                  ),
-                  child: Container(color: Colors.transparent),
-                ),
-              )
-            : null,
+        centerTitle: false,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: palette.surfaceLow.withValues(alpha: isDark ? 0.4 : 0.6),
+            ),
+          ),
+        ),
         actions: [
           if (_hintCount >= 3)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: FilledButton.tonalIcon(
+              child: TextButton.icon(
                 onPressed: isLoading ? null : _sendRevealRequest,
                 icon: const Icon(Icons.visibility_rounded, size: 18),
-                label: const Text('Show Answer'),
+                label: const Text('REVEAL'),
+                style: TextButton.styleFrom(
+                  foregroundColor: palette.primaryDim,
+                  textStyle: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 11),
+                ),
               ),
             ),
           if (_currentSessionId != null && _isOwner)
             IconButton(
               onPressed: () => _showShareDialog(_chatSession!),
-              icon: const Icon(Icons.share_rounded),
+              icon: const Icon(Icons.share_rounded, size: 20),
               tooltip: 'Share Chat',
             ),
           if (_isOwner)
             Builder(builder: (context) {
               return IconButton(
                 onPressed: () => Scaffold.of(context).openEndDrawer(),
-                icon: const Icon(Icons.history_rounded),
+                icon: const Icon(Icons.history_rounded, size: 22),
                 tooltip: 'Chat History',
               );
             }),
           const SizedBox(width: 8),
         ],
       ),
+      backgroundColor: Colors.transparent,
       endDrawer: _isOwner ? _buildHistoryDrawer(context) : null,
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: AmbientBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
             Expanded(
               child: isBootstrapping
                   ? const Center(child: CircularProgressIndicator())
@@ -144,40 +162,43 @@ class _ChatScreenState extends State<ChatScreen> {
                       itemBuilder: (context, index) {
                         if (isLoading && index == messages.length) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             child: Row(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: palette.surfaceLow,
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Row(
-                                    children: List.generate(
-                                      3,
-                                      (dotIndex) => Container(
-                                        width: 8,
-                                        height: 8,
-                                        margin: EdgeInsets.only(
-                                          right: dotIndex == 2 ? 0 : 6,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: palette.surfaceCard.withValues(alpha: isDark ? 0.4 : 0.6),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: palette.outline.withValues(alpha: 0.2),
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.35 + (dotIndex * 0.2)),
-                                          shape: BoxShape.circle,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: List.generate(
+                                          3,
+                                          (dotIndex) => _LoadingDot(index: dotIndex),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 12),
                                 Text(
-                                  'Synthesizing thought...',
-                                  style:
-                                      Theme.of(context).textTheme.labelMedium,
+                                  'Synthesizing...',
+                                  style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: palette.primaryDim,
+                                      ),
                                 ),
                               ],
                             ),
@@ -227,65 +248,126 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               )
             else
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                decoration: BoxDecoration(
-                  color: palette.inputBar,
-                  border: isDark ? Border(top: BorderSide(color: palette.outline, width: 1)) : null,
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark ? Colors.black.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.04),
-                      blurRadius: 24,
-                      offset: const Offset(0, -8),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: isLoading || isBootstrapping
-                          ? null
-                          : _sendSimplifyRequest,
-                      icon: const Icon(Icons.lightbulb_rounded),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: controller,
-                        focusNode: _focusNode,
-                        autofocus: true,
-                        textInputAction: TextInputAction.send,
-                        minLines: 1,
-                        maxLines: 4,
-                        enabled: !isLoading, // Allow typing even while bootstrapping
-                        decoration: InputDecoration(
-                          hintText: 'Share your thought...',
-                          suffixIcon: VoiceInputSuffix(controller: controller),
-                        ),
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, palette.primaryDim],
-                        ),
-                      ),
-                      child: IconButton(
-                        onPressed:
-                            isLoading || isBootstrapping ? null : _sendMessage,
-                        icon: const Icon(
-                          Icons.arrow_upward_rounded,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
+              _buildInputArea(context),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputArea(BuildContext context) {
+    final palette = context.palette;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: palette.surfaceCard.withValues(alpha: isDark ? 0.3 : 0.6),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: palette.outline.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: isLoading || isBootstrapping
+                      ? null
+                      : _sendSimplifyRequest,
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  color: palette.primaryDim,
+                  tooltip: 'Simplify',
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    focusNode: _focusNode,
+                    autofocus: true,
+                    textInputAction: TextInputAction.send,
+                    minLines: 1,
+                    maxLines: 5,
+                    enabled: !isLoading,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Share your thought...',
+                      hintStyle: GoogleFonts.inter(
+                        color: palette.textMuted.withValues(alpha: 0.5),
+                        fontSize: 15,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                      suffixIcon: VoiceInputSuffix(controller: controller),
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildSendButton(context),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSendButton(BuildContext context) {
+    final palette = context.palette;
+    final isSending = isLoading || isBootstrapping;
+
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: isSending 
+            ? [palette.surfaceLow, palette.surfaceLow]
+            : [AppColors.primary, palette.primaryDim],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          if (!isSending)
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+        ],
+      ),
+      child: IconButton(
+        onPressed: isSending ? null : _sendMessage,
+        icon: isSending 
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(palette.primaryDim),
+                ),
+              )
+            : const Icon(
+                Icons.arrow_upward_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
       ),
     );
   }
@@ -749,5 +831,62 @@ class _ChatScreenState extends State<ChatScreen> {
         errorText = 'Something went wrong while sending the message.';
       });
     }
+  }
+}
+
+class _LoadingDot extends StatefulWidget {
+  final int index;
+  const _LoadingDot({required this.index});
+
+  @override
+  State<_LoadingDot> createState() => _LoadingDotState();
+}
+
+class _LoadingDotState extends State<_LoadingDot> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
+
+    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          widget.index * 0.2,
+          0.6 + (widget.index * 0.2),
+          curve: Curves.easeInOut,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: 8,
+          height: 8,
+          margin: const EdgeInsets.only(right: 6),
+          decoration: BoxDecoration(
+            color: context.palette.primaryDim.withValues(alpha: _animation.value),
+            shape: BoxShape.circle,
+          ),
+        );
+      },
+    );
   }
 }
