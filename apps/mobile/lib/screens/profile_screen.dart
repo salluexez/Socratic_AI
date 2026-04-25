@@ -204,11 +204,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: const Color(0xFF00BFA5),
                                 ),
                                 _StatDivider(palette: palette),
-                                const _VerticalStat(
+                                _VerticalStat(
                                   icon: Icons.local_fire_department_rounded,
-                                  value: '4', 
+                                  value: '${displayUser.streak}', 
                                   label: 'Streak',
-                                  color: Color(0xFFFF9100),
+                                  color: const Color(0xFFFF9100),
                                 ),
                               ],
                             ),
