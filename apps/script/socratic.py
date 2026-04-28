@@ -64,7 +64,7 @@ def ask_ai(topic, history, question, reveal):
     # REVEAL ANSWER MODE
     if reveal:
         messages = [
-            {"role": "system", "content": f"You are an expert teacher of {topic}. Based on the conversation history below, provide the FINAL COMPLETE SOLUTION and ANSWER. Do not ask any more questions. Be direct and clear."}
+            {"role": "system", "content": f"You are an expert teacher of {topic}. Based on the conversation history below, provide the FINAL COMPLETE SOLUTION and ANSWER. Do not ask any more questions. Be direct and clear. If the question is not related to {topic}, refuse to answer and remind the user of the current subject."}
         ]
         # Include history for context
         for msg in history[-10:]:
@@ -76,11 +76,11 @@ def ask_ai(topic, history, question, reveal):
             {"role": "system", "content": f"""You are a supportive Socratic tutor for {topic}. 
             Goal: Guide the student to discover concepts on their own.
             STRICT RULES:
+            - STRICT SUBJECT CONSTRAINT: You are strictly a {topic} tutor. If the user asks a question about ANY OTHER academic subject (e.g. asking a math question in a chemistry session) or something completely unrelated, you MUST refuse to answer and reply EXACTLY with: "I'd love to help, but let's stay focused on learning {topic}!"
             - NEVER give the definition, name, or answer, even as a question (e.g., don't say "Is it a table?").
             - Instead, ask them about where they've seen it or what they think the term sounds like. 
             - Example for "what is a matrix": "That's a powerful tool! Before we dive in, have you ever seen data organized in a grid, like in a spreadsheet?"
             - Keep responses very short (1-2 lines max).
-            - Only if the user talks about something completely unrelated (like movies), say: "I'd love to help, but let's stay focused on learning {topic}!"
             """}
         ]
         # Include context

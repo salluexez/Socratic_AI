@@ -128,3 +128,34 @@ const sessionSchema = new Schema({
     isCompleted: { type: Boolean, default: false }
 }, { timestamps: true });
 ```
+
+## 4.5 User Interface Design
+User interface (UI) design for Socratic AI involves crafting visually appealing and user-friendly interfaces that prioritize a "premium" educational experience. Our design philosophy centers on an intuitive and efficient user journey, ensuring that students can focus entirely on the learning process without technical friction.
+
+### 4.5.1 Design Principles
+Effective UI design in our project prioritizes:
+- **Consistency**: Uniform use of colors, typography, and spacing across web and mobile platforms.
+- **Clarity**: High-contrast text and clear iconography to ensure readability during intense study sessions.
+- **Simplicity**: Minimalist layouts that reduce cognitive load, allowing the Socratic dialogue to remain the focal point.
+- **Visual Excellence**: Use of glassmorphism, vibrant gradients, and micro-animations to create a modern, engaging atmosphere.
+
+### 4.5.2 Design Tools
+To achieve this level of sophistication, we leverage industry-leading design tools:
+- **Figma**: Our primary tool for collaborative prototyping and interface design. Figma allows our team to iterate in real-time, creating high-fidelity wireframes that directly inform our Flutter and Next.js implementations.
+- **Photoshop**: Used for creating detailed custom graphics, glowing assets, and refining image-based UI elements.
+- **Corel DRAW**: Employed for precise vector illustrations, including custom subject icons and branding assets that require perfect scalability.
+
+### 4.5.3 UI Mockups and Screenshots
+The following screenshots demonstrate the result of our design process across different platforms and modules.
+
+**Mobile Chat Interface**
+![Mobile Chat UI](file:///Users/mohdsalauddin/.gemini/antigravity/brain/45267c42-83b0-4873-a389-802c4ced2473/mobile_chat_ui_mockup_1777139437353.png)
+*Figure 1: The Socratic Chat interface featuring glassmorphic bubbles and the interactive 'Reveal' hint system.*
+
+**Web Analytics Dashboard**
+![Web Dashboard UI](file:///Users/mohdsalauddin/.gemini/antigravity/brain/45267c42-83b0-4873-a389-802c4ced2473/web_dashboard_ui_mockup_1777139452865.png)
+*Figure 2: The centralized web dashboard showing subject cards, learning progress, and weekly activity charts.*
+
+**Subject Selection Flow**
+![Subject Selection UI](file:///Users/mohdsalauddin/.gemini/antigravity/brain/45267c42-83b0-4873-a389-802c4ced2473/subject_selection_ui_mockup_1777139469502.png)
+*Figure 3: A sleek, high-contrast subject selection screen designed for rapid navigation and continuity.*
