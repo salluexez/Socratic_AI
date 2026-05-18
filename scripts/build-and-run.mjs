@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
+import fs from "node:fs";
 
 const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-const pythonCmd = process.platform === "win32" ? "python" : "python3";
+const venvPython = process.platform === "win32" ? "apps/script/venv/Scripts/python.exe" : "apps/script/venv/bin/python3";
+const pythonCmd = fs.existsSync(venvPython) ? venvPython : (process.platform === "win32" ? "python" : "python3");
 
 function run(command, label) {
   return new Promise((resolve, reject) => {
